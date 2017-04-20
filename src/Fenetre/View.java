@@ -1,39 +1,60 @@
 package Fenetre;
 
 
-import java.io.IOException;
-import java.net.UnknownHostException;
+import java.util.ArrayList;
 
 import Controller.Controller;
-import Fenetre.*;
 import Model.Model;
+import Model.User;
 
 //le début est OK :
 //TODO lorsque le listener des fenetres doit envoyer des choses, il appelle des fonctions du controller, le squelette de l algo se trouve ds le controller
 public class View {
 
 	//attributs
-	public static String test; 
 	private Controller controller;
+	private Model model;
 
 	//Constructeur
 	public View (Model model,Controller controller){
+		this.model = model;
 		this.controller = controller;
-		FenetreLogin fenetre1 = new FenetreLogin(this);
-		fenetre1.pack();
-		fenetre1.setVisible(true);
+		FenetreLogin fenetreLog = new FenetreLogin(this);
+		fenetreLog.pack();
+		fenetreLog.setVisible(true);
 	}
 
-	
 	public void initMain() { 
-		FenetreMain fenetre2 = new FenetreMain();
-		fenetre2.pack();
-		fenetre2.setVisible(true);
+		initNetwork(); //first network functionality initialization
+		FenetreMain fenetreMain = new FenetreMain(this);
+		fenetreMain.pack();
+		fenetreMain.setVisible(true);
 	}
 
-	public void Login(String username) {
-		controller.setUser(username);
+	public void initNetwork() {
+		//TODO :
+		// - initialize network itself (define ports, sockets)
+		// - discover other users and make yourself known to them (populate model.userList)
+		// - set model.connected to true
 	}
+
+	public boolean launchChatWith(User user) {
+		return controller.launchChatWith(user);
+	}
+	
+	public void login(String username) {
+		controller.setLocalUser(username);
+		initMain();
+	}
+
+	public ArrayList<User> getUserList() {
+		return model.getUserList();
+	}
+
+	public User getLocalUser() {
+		return model.getLocalUser();
+	}
+	
 	public static void main(String[] args) throws InterruptedException {
 
 

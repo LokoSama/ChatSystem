@@ -15,9 +15,9 @@ public class User {
 		this.IP = IP ;
 		this.status = status;
 	}
-	
+
 	//Methods
-	
+
 	//Getters
 	public String getUsername(){
 		return this.username ;
@@ -26,12 +26,16 @@ public class User {
 	public InetAddress getIP() {
 		return this.IP;		
 	}
-	
+
 	public Status getStatus() {
 		return status;
 	}
 
 	//Setters
+	public void setName(String name) {
+		this.username = name;
+	}
+	
 	public void setStatus(Status status) {
 		this.status = status;
 	}
@@ -44,6 +48,6 @@ public class User {
 	}
 
 	public String toString () {
-		return username + "@" + IP ;
+		return this.username + "@" + this.IP + " (" + this.status + ")" ;
 	}
 }

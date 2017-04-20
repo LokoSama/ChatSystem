@@ -4,16 +4,20 @@ package Fenetre;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.net.UnknownHostException;
 
-import javax.imageio.IIOException;
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JTextArea;
+import javax.swing.SwingConstants;
 
 
-//Cette fen�tre est la fen�tre de login. impl�mentation d'un popup de connexion qui pourra servir au fail de co
+//Cette fenêtre est la fenêtre de login. implémentation d'un popup de connexion qui pourra servir au fail de co
 
+@SuppressWarnings("serial")
 public class FenetreLogin extends JFrame implements ActionListener {
 	//Attributs
 
@@ -25,7 +29,6 @@ public class FenetreLogin extends JFrame implements ActionListener {
 	private JLabel lbUsername;
 	private JPanel panel ;
 	//Tests
-	private boolean okPseudo;
 	private String Pseudo;
 
 	//Constructeur
@@ -36,20 +39,11 @@ public class FenetreLogin extends JFrame implements ActionListener {
 
 	}
 
-
-	public boolean getOk() {
-		return okPseudo;
-	}
-
 	public String getPseudo() {
 		return Pseudo;	
 	}
 
-
 	private void createComponents () {
-		//Tests
-		okPseudo = false;
-
 
 		//Buttons	
 		bLogin= new JButton("Login");
@@ -92,11 +86,11 @@ public class FenetreLogin extends JFrame implements ActionListener {
 			JOptionPane.showMessageDialog(null, "Login de "+ newUser);
 			this.textPseudo.setText("");
 			System.out.println("dans le listener");
-			view.Login(newUser);
+			view.login(newUser);
 			this.setVisible(false);
 		}
 	}
-	
+
 
 
 }

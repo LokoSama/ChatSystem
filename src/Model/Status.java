@@ -5,7 +5,7 @@ public enum Status {
 	Busy,
 	Away,
 	Offline;
-	
+
 	public String toString() {
 		if (this == Online)
 			return "Online";

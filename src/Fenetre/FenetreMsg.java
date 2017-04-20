@@ -3,19 +3,41 @@ package Fenetre;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.net.Socket;
 
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.JTextArea;
 
-public class FenetreMsg extends JFrame implements ActionListener {
+@SuppressWarnings("serial")
+public class FenetreMsg extends JFrame implements ActionListener, Runnable {
 
 	private JTextArea textHist ;
 	private JTextArea textSaisie ;
 	private JButton bSend ;
 	private JPanel panel ;
+	private Socket socket;
 
-	public FenetreMsg () { 
-		this.createComponents();
-		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);		
+	public FenetreMsg (String title, Socket socket) { 
+		this.setTitle(title);
+		this.socket = socket;
+		this.createComponents();		
+		this.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+		this.pack();
+		this.setVisible(true);
+	}
+
+	@Override
+	//Here goes the code executed in each thread
+	public void run() {
+		boolean running = true;
+		while(running) {
+			//TODO : send/receive messages
+			if (true)
+				running = false;
+		}
 	}
 
 	private void createComponents() {
@@ -49,17 +71,9 @@ public class FenetreMsg extends JFrame implements ActionListener {
 			String newMsg= this.textSaisie.getText();
 			this.textHist.append(newMsg+"\n");
 			this.textSaisie.setText("");
-			}
+		}
 	}
 
-
-	public static void main(String[] args) {
-		//Fenetre 1
-		FenetreMsg fenetre1 = new FenetreMsg();
-		fenetre1.pack();
-		fenetre1.setVisible(true);
-
-	}
 
 
 }
