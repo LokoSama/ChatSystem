@@ -11,7 +11,6 @@ import java.net.Socket;
 import Controller.Controller;
 import Model.Status;
 import Model.User;
-
 /**
  * @author alex205
  */
@@ -59,7 +58,7 @@ public class HelloListener extends Thread {
 					ServerSocket com = new ServerSocket(basePort);
 					CommunicationListener listener = new CommunicationListener(com);
 					listener.start();
-					ni.sendControl(controller.getLocalUser(), new User(c.getPseudoSource(), c.getAddrSource()), Control.Control_t.ACK, basePort);
+					ni.sendControl(controller.getLocalUser(), new User(c.getPseudoSource(), c.getAddrSource(),Status.Online), Control.Control_t.ACK, basePort);
 					basePort++;
 				}
 			} catch (IOException e) {

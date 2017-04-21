@@ -1,4 +1,5 @@
 package Controller;
+import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
@@ -31,10 +32,18 @@ public class Controller {
 	}
 
 	public boolean launchChatWith(User user) {
-		Socket sock = new Socket(user.getIP(), REMOTE_SERVER_PORT);
-		activeSockets.put(user, sock);
-		(new Thread( new FenetreMsg(user.getUsername(), sock) )).start();
-		return true;
+		Socket sock;
+		try {
+			sock = new Socket(user.getIP(), REMOTE_SERVER_PORT);
+			activeSockets.put(user, sock);
+			(new Thread( new FenetreMsg(user.getUsername(), sock) )).start();
+			return true;
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return false;
+		}
+		
 	}
 	
 	public User getLocalUser() {
@@ -56,7 +65,12 @@ public class Controller {
 	private void initNetwork() {
 		//TODO: socket handling
 		// we need 1 server socket to accept incoming connections & 1 socket list to store the sockets used for individual conversations
-		serverSock = new ServerSocket(SERVER_LISTENING_PORT);
+		try {
+			serverSock = new ServerSocket(SERVER_LISTENING_PORT);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		activeSockets = new HashMap<>();
 	}
 
