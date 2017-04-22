@@ -11,6 +11,8 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 
+import Model.User;
+
 @SuppressWarnings("serial")
 public class FenetreMsg extends JFrame implements ActionListener, Runnable {
 

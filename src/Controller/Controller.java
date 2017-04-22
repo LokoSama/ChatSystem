@@ -1,5 +1,6 @@
 package Controller;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
@@ -8,6 +9,7 @@ import java.util.Map;
 import Fenetre.FenetreMsg;
 import Fenetre.View;
 import Model.Model;
+import Model.Status;
 import Model.User;
 
 
@@ -27,7 +29,14 @@ public class Controller {
 	public Controller() {
 		this.model = new Model();
 		this.view = new View(this.model,this);
-
+		model.addObserver(view);
+		try {
+			Thread.sleep(10000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		model.addUser("le nouveau", InetAddress.getLoopbackAddress(), Status.Busy); //permet de tester le pattern Observable Observer
 		initNetwork();
 	}
 
