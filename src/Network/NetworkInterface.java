@@ -12,6 +12,8 @@ import java.util.HashMap;
 
 import Controller.Controller;
 import Model.User;
+import Network.Packet.Control;
+import Network.Packet.Notification;
 
 
 /**
@@ -72,7 +74,7 @@ public class NetworkInterface {
 	public void setController(Controller controller) {
 		this.controller = controller;
 	}
-	
+
 	private Socket negotiatePort(User destUser) {
 		System.out.println("Je vais négocier le port");
 		try {
@@ -93,6 +95,20 @@ public class NetworkInterface {
 		return null;
 	}
 
+	protected void sendControl(User me, User dest, Control.Control_t type, int data) {
+		try {
+			Control control_packet = new Control(me.getUsername(), dest.getUsername(), me.getIP(), dest.getIP(), type, data);
+			ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+			ObjectOutputStream os = new ObjectOutputStream(outputStream);
+			os.writeObject(control_packet);
+			byte[] buffer = outputStream.toByteArray();
+			DatagramPacket sendPacket = new DatagramPacket(buffer, buffer.length, dest.getIP(), helloPort);
+			anouk.send(sendPacket);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
 	private Socket getSocket(User destUser) {
 		Socket s = socketMap.get(destUser);
 		if(s == null) {
@@ -132,20 +148,6 @@ public class NetworkInterface {
 
 	public void transmitFile(String filename, User dest) {
 
-	}
-
-	protected void sendControl(User me, User dest, Control.Control_t type, int data) {
-		try {
-			Control control_packet = new Control(me.getUsername(), dest.getUsername(), me.getIP(), dest.getIP(), type, data);
-			ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-			ObjectOutputStream os = new ObjectOutputStream(outputStream);
-			os.writeObject(control_packet);
-			byte[] buffer = outputStream.toByteArray();
-			DatagramPacket sendPacket = new DatagramPacket(buffer, buffer.length, dest.getIP(), helloPort);
-			anouk.send(sendPacket);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
 	}
 
 	public void addMap(User user, Socket s) {

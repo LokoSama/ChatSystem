@@ -19,8 +19,8 @@ public class View implements Observer {
 	private Controller controller;
 	private Model model;
 	
-	//attribut fenêtre
-	private FenetreMain fenetreMain; //nécessaire pour propager l'information depuis Model
+	//attribut fenï¿½tre
+	private FenetreMain fenetreMain; //nï¿½cessaire pour propager l'information depuis Model
 	//Constructeur
 	public View (Model model,Controller controller) {
 		this.model = model;
@@ -45,8 +45,8 @@ public class View implements Observer {
 		// Not here imo
 	}
 
-	public boolean launchChatWith(User user) {
-		return controller.launchChatWith(user);
+	public void launchChatWith(User user) {
+		controller.launchChatWith(user);
 	}
 	
 	public void login(String username) {

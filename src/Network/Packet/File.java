@@ -1,11 +1,11 @@
-package Network;
+package Network.Packet;
 
 import java.net.InetAddress;
 
 /**
  * @author alex205
  */
-@SuppressWarnings("serial")
+@SuppressWarnings({"serial", "unused"})
 public class File extends Message {
 	private String fileName;
 	private String mimeType;

@@ -3,7 +3,6 @@ package Fenetre;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.net.Socket;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -11,20 +10,22 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 
+import Controller.Controller;
 import Model.User;
 
 @SuppressWarnings("serial")
 public class FenetreMsg extends JFrame implements ActionListener, Runnable {
 
 	private JTextArea textHist ;
-	private JTextArea textSaisie ;
+	private JTextArea textSaisi ;
 	private JButton bSend ;
 	private JPanel panel ;
-	private Socket socket;
+	private Controller controller;
+	private User remoteUser;
 
-	public FenetreMsg (String title, Socket socket) { 
-		this.setTitle(title);
-		this.socket = socket;
+	public FenetreMsg (User remoteUser) { 
+		this.remoteUser = remoteUser;
+		this.setTitle(remoteUser.getUsername());
 		this.createComponents();		
 		this.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
 		this.pack();
@@ -48,7 +49,7 @@ public class FenetreMsg extends JFrame implements ActionListener, Runnable {
 		//Listeners
 		bSend.addActionListener(this);
 		//TextArea
-		textSaisie = new JTextArea(5,20);
+		textSaisi = new JTextArea(5,20);
 		textHist = new JTextArea(5,20); 
 		textHist.setEditable(false);
 		//Panel
@@ -61,7 +62,7 @@ public class FenetreMsg extends JFrame implements ActionListener, Runnable {
 
 		//add
 		panel.add(textHist);
-		panel.add(textSaisie);
+		panel.add(textSaisi);
 		panel.add(bSend);
 		this.add(panel);
 
@@ -70,9 +71,10 @@ public class FenetreMsg extends JFrame implements ActionListener, Runnable {
 	public void actionPerformed(ActionEvent e) {
 		Object source = e.getSource();
 		if (source == bSend){
-			String newMsg= this.textSaisie.getText();
+			String newMsg= this.textSaisi.getText();
 			this.textHist.append(newMsg+"\n");
-			this.textSaisie.setText("");
+			this.textSaisi.setText("");
+			controller.sendText(remoteUser, newMsg);
 		}
 	}
 

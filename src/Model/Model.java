@@ -12,6 +12,7 @@ public class Model extends Observable {
 
 	//Attributes
 	private User localUser;
+	private InetAddress localIP;
 	private ArrayList<User> userList;
 	private boolean connected ;
 
@@ -42,6 +43,10 @@ public class Model extends Observable {
 		return userList;
 	}
 
+	public InetAddress getLocalIP() {
+		return localIP;
+	}
+	
 	public User getLocalUser() {
 		return localUser;
 	}
