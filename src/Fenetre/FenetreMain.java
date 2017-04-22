@@ -4,6 +4,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Observable;
+import java.util.Observer;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListModel;
@@ -17,10 +19,12 @@ import javax.swing.JTextArea;
 import javax.swing.ListSelectionModel;
 import javax.swing.ScrollPaneConstants;
 
+import Model.Model;
 import Model.User;
 
 
 @SuppressWarnings("serial")
+
 public class FenetreMain extends JFrame implements ActionListener {
 
 	//Attributs
@@ -36,7 +40,7 @@ public class FenetreMain extends JFrame implements ActionListener {
 	public FenetreMain (View view) {
 		this.view = view;
 		this.createComponents() ;
-		this.initUserList(view.getUserList());
+		this.initUserList(view.getUserList()); //init de la User List
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
 
@@ -80,6 +84,7 @@ public class FenetreMain extends JFrame implements ActionListener {
 		panel.add(scrollPaneNotif);
 		panel.add(bChat);
 		this.add(panel);
+		
 	}
 
 	//populates the JList with the existing userArrayList
@@ -88,7 +93,12 @@ public class FenetreMain extends JFrame implements ActionListener {
 			jlistModel.addElement(userArrayList.get(i));
 		}
 	}
-
+	
+	public void updateUserList() {
+		jlistModel.clear();
+		this.initUserList(view.getUserList());
+	}
+	
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		Object source = e.getSource();
@@ -98,4 +108,6 @@ public class FenetreMain extends JFrame implements ActionListener {
 		}
 
 	}
-}
+
+	}
+
