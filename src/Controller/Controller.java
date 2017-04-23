@@ -39,7 +39,6 @@ public class Controller {
 	private Control newPacket;
 
 	//TCP networking
-	private ServerSocket serverSock;
 	private HashMap<User,Conversation> convList; //contains all open Conversations
 
 	//Constructeur
@@ -58,26 +57,31 @@ public class Controller {
 		this.model = new Model();
 		this.view = new View(this.model,this);
 		model.addObserver(view);
+		
+		//FIXME: il faut se login vite, sinon le addUser décède parce qu'on est pas co
+		Tempo(10000);
+		model.addUser("le nouveau", InetAddress.getLoopbackAddress(), Status.Busy); //permet de tester le pattern Observable Observer
+		Tempo(10000);
+		model.setStatus("le nouveau", InetAddress.getLoopbackAddress(), Status.Online);
+		Tempo(10000);
+		model.deleteUser("le nouveau", InetAddress.getLoopbackAddress());
+		Tempo(10000);
+		
+		initNetwork();
+	}
+	
+	
+	private void Tempo(int time) { //pour les tests
 		try {
-			Thread.sleep(10000);
+			Thread.sleep(time);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		//FIXME: il faut se login vite, sinon le addUser décède parce qu'on est pas co
-		model.addUser("le nouveau", InetAddress.getLoopbackAddress(), Status.Busy); //permet de tester le pattern Observable Observer
-
-		this.newUDPPacket = false;
-		initNetwork();
-
-		//separate thread to listen to incoming UDP datagrams
-		UDPListener UDPL = new UDPListener(UDPlisten, this);
-		UDPL.start();
 	}
-
-
+	
 	private void initNetwork() {
+		this.newUDPPacket = false;
 		//We use 2 UDP sockets to accept incoming HELLO requests and answer with a port number
 		//We use TCP Conversations to handle each conversation separately, stored in a HashMap
 		try {
@@ -87,7 +91,11 @@ public class Controller {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
 		convList = new HashMap<User,Conversation>();
+		
+		UDPListener UDPL = new UDPListener(UDPlisten, this); //separate thread to listen to incoming UDP datagrams
+		UDPL.start();
 	}
 
 	public void sendText(User dest, String data) {

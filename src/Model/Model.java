@@ -47,15 +47,27 @@ public class Model extends Observable {
 		this.localUser.setName(name);
 	}
 
+	public void setStatus(String name,InetAddress ip, Status status){
+		int index = userList.indexOf(new User(name,ip,status));
+		userList.set(index,new User(name,ip,status));
+		setChanged();
+		notifyObservers();
+		}
+	
 	public boolean addUser(String name, InetAddress ip, Status status) {
 		boolean ret = userList.add(new User(name, ip, status));
 		setChanged();
-		notifyObservers(this.userList);
+		notifyObservers();
 		return ret;
 	}
 
 	public boolean deleteUser(String name, InetAddress ip) {
-		return userList.remove(new User(name, ip, Status.Online));
+		
+		boolean ret = userList.remove(new User(name, ip, Status.Busy));
+		setChanged();
+		notifyObservers();
+		System.out.println(ret);
+		return ret;
 	}
 
 }

@@ -2,6 +2,8 @@ package Model;
 
 import java.net.InetAddress;
 
+import Controller.Controller;
+
 
 public class User {
 	//Attributes
@@ -40,14 +42,29 @@ public class User {
 		this.status = status;
 	}
 
-	//Override
-	public boolean equals(User u) {
-		return u != null
-				&& u.getUsername() == this.getUsername()
-				&& u.getIP() == this.getIP();
+		@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		User other = (User) obj;
+		if (IP == null) {
+			if (other.IP != null)
+				return false;
+		} else if (!IP.equals(other.IP))
+			return false;
+		if (status != other.status)
+			return false;
+		return true;
 	}
 
 	public String toString () {
 		return this.username + "@" + this.IP + " (" + this.status + ")" ;
 	}
+
+
+
 }

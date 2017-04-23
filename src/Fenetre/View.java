@@ -61,8 +61,8 @@ public class View implements Observer {
 	@Override
 	public void update(Observable obs, Object arg) {
 		if (obs instanceof Model){
-			System.out.println("nouveau user");
-			JOptionPane.showMessageDialog(null, "nouveau user");
+			System.out.println("MAJ user");
+			//JOptionPane.showMessageDialog(null, "nouveau user");
 			this.fenetreMain.updateUserList();
 		}
 	}
