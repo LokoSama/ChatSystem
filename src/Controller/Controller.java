@@ -44,17 +44,26 @@ public class Controller {
 		this.model = new Model();
 		this.view = new View(this.model,this);
 		model.addObserver(view);
+		Tempo(10000);
+		model.addUser("le nouveau", InetAddress.getLoopbackAddress(), Status.Busy); //permet de tester le pattern Observable Observer
+		Tempo(10000);
+		model.setStatus("le nouveau", InetAddress.getLoopbackAddress(), Status.Online);
+		Tempo(10000);
+		model.deleteUser("le nouveau", InetAddress.getLoopbackAddress());
+		Tempo(10000);
+		initNetwork();
+	}
+	
+	
+	private void Tempo(int time) { //pour les tests
 		try {
-			Thread.sleep(10000);
+			Thread.sleep(time);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		model.addUser("le nouveau", InetAddress.getLoopbackAddress(), Status.Busy); //permet de tester le pattern Observable Observer
 		
-		initNetwork();
 	}
-	
 	
 	private void initNetwork() {
 		//We use 2 UDP sockets to accept incoming HELLO requests and answer with a port number
