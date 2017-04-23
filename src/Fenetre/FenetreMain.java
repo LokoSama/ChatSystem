@@ -2,10 +2,7 @@ package Fenetre;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.net.Socket;
 import java.util.ArrayList;
-import java.util.Observable;
-import java.util.Observer;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListModel;
@@ -19,7 +16,7 @@ import javax.swing.JTextArea;
 import javax.swing.ListSelectionModel;
 import javax.swing.ScrollPaneConstants;
 
-import Model.Model;
+import Controller.Debugger;
 import Model.User;
 
 
@@ -45,7 +42,8 @@ public class FenetreMain extends JFrame implements ActionListener {
 	}
 
 	private void createComponents () {
-
+		this.setTitle(view.getLocalUser().getUsername());
+		
 		//Buttons	
 		bChat= new JButton("Chat with");
 

@@ -35,11 +35,11 @@ public class FenetreMsg extends JFrame implements ActionListener, Runnable {
 	@Override
 	//Here goes the code executed in each thread
 	public void run() {
-		boolean running = true;
-		while(running) {
-			//TODO : send/receive messages
-			if (true)
-				running = false;
+		String msg;
+		while(true) {
+			msg = controller.getMessageFrom(remoteUser); //blocking call to wait for a new message
+			this.textHist.append(this.remoteUser.getUsername() + ": " + msg + "\n");
+
 		}
 	}
 
@@ -72,7 +72,7 @@ public class FenetreMsg extends JFrame implements ActionListener, Runnable {
 		Object source = e.getSource();
 		if (source == bSend){
 			String newMsg= this.textSaisi.getText();
-			this.textHist.append(newMsg+"\n");
+			this.textHist.append(this.controller.getLocalUser().getUsername() + ": " + newMsg + "\n");
 			this.textSaisi.setText("");
 			controller.sendText(remoteUser, newMsg);
 		}

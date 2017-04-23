@@ -37,14 +37,6 @@ public class View implements Observer {
 		this.fenetreMain.setVisible(true);
 	}
 
-	public void initNetwork() {
-		//TODO :
-		// - initialize network itself (define ports, sockets)
-		// - discover other users and make yourself known to them (populate model.userList)
-		// - set model.connected to true
-		// Not here imo
-	}
-
 	public void launchChatWith(User user) {
 		controller.launchChatWith(user);
 	}

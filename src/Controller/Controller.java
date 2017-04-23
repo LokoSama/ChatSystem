@@ -5,6 +5,7 @@ import java.io.ObjectOutputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
@@ -15,6 +16,7 @@ import Model.Model;
 import Model.Status;
 import Model.User;
 import MyNetwork.Conversation;
+import MyNetwork.UDPListener;
 import Network.Packet.Control;
 import Network.Packet.File;
 import Network.Packet.Message;
@@ -31,16 +33,28 @@ public class Controller {
 	//UDP networking
 	private DatagramSocket UDPlisten; //UDP sockets for negotiating the TCP port to be used. UDPlisten always has port number LOCAL_LISTEN_PORT.
 	private DatagramSocket UDPtalk;
-	private final int LOCAL_LISTEN_PORT = 2042;
-	private final int REMOTE_LISTEN_PORT = 2402;
-	
+	private int LOCAL_LISTEN_PORT = 2042;
+	private int REMOTE_LISTEN_PORT = 2042;
+	private boolean newUDPPacket;
+	private Control newPacket;
+
 	//TCP networking
 	private ServerSocket serverSock;
 	private HashMap<User,Conversation> convList; //contains all open Conversations
-	
-	
+
 	//Constructeur
-	public Controller() {
+	public Controller(String arg0) {
+		//POUR LANCER 2 CLIENTS SUR UN PC, A ENLEVER APRES
+		// + remettre LOCAL_LISTEN_PORT et REMOTE_LISTEN_PORT en "final" (constante)
+		int userNumber = Integer.parseInt(arg0);
+		if (userNumber == 1) {
+			LOCAL_LISTEN_PORT = 2042;
+			REMOTE_LISTEN_PORT = 2043;
+		} else {
+			LOCAL_LISTEN_PORT = 2043;
+			REMOTE_LISTEN_PORT = 2042;
+		}
+		
 		this.model = new Model();
 		this.view = new View(this.model,this);
 		model.addObserver(view);
@@ -50,12 +64,19 @@ public class Controller {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		model.addUser("le nouveau", InetAddress.getLoopbackAddress(), Status.Busy); //permet de tester le pattern Observable Observer
 		
+		//FIXME: il faut se login vite, sinon le addUser d�c�de parce qu'on est pas co
+		model.addUser("le nouveau", InetAddress.getLoopbackAddress(), Status.Busy); //permet de tester le pattern Observable Observer
+
+		this.newUDPPacket = false;
 		initNetwork();
+
+		//separate thread to listen to incoming UDP datagrams
+		UDPListener UDPL = new UDPListener(UDPlisten, this);
+		UDPL.start();
 	}
-	
-	
+
+
 	private void initNetwork() {
 		//We use 2 UDP sockets to accept incoming HELLO requests and answer with a port number
 		//We use TCP Conversations to handle each conversation separately, stored in a HashMap
@@ -68,18 +89,35 @@ public class Controller {
 		}
 		convList = new HashMap<User,Conversation>();
 	}
-	
+
 	public void sendText(User dest, String data) {
-		Packet pack = new Text(this.getLocalUser().getUsername(), dest.getUsername(), model.getLocalIP(), dest.getIP(), data);
+		Packet pack = new Text(this.getLocalUser().getUsername(), dest.getUsername(), this.getLocalIP(), dest.getIP(), data);
 		Conversation conv = convList.get(dest);
 		conv.send(pack);
 	}
-	
+
+	public void sendControl(User dest, Control.Control_t type, int data) {
+		Control controlPacket = new Control(this.getLocalUser().getUsername(), dest.getUsername(), this.getLocalUser().getIP(), dest.getIP(), Control.Control_t.HELLO, data);
+
+		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+		ObjectOutputStream os;
+		try {
+			os = new ObjectOutputStream(outputStream);
+			os.writeObject(controlPacket);
+			byte[] buffer = outputStream.toByteArray();
+
+			DatagramPacket packet = new DatagramPacket(buffer, buffer.length, dest.getIP(), REMOTE_LISTEN_PORT);
+			UDPtalk.send(packet);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
 	public void send(User dest, Packet pack) {
-		Conversation conv = convList.get(dest);
-		
+
 		if (pack instanceof Control) {
-			//TODO
+			//done sendControl
 		} else if (pack instanceof File) {	
 			//TODO
 		} else if (pack instanceof Message) {
@@ -94,55 +132,81 @@ public class Controller {
 	}
 
 
-	public void launchChatWith(User user) {
-		if (convList.containsKey(user)) {
-			//TODO : notifier l'utilisateur qu'il a déjà une conv en cours avec l'autre et/ou réafficher la fenêtre de conv
+	public void launchChatWith(User remoteUser) {
+		Debugger.log("Controller.launchChatWith: start");
+		if (convList.containsKey(remoteUser)) {
+			//TODO : notifier l'utilisateur qu'il a deja� une conv en cours avec l'autre et/ou reafficher la fenetre de conv
 		} else {
-			//TODO: determiner port distant et annoncer port local (ici 424242 en placeholder)
-			int port = this.negotiatePort(user, 424242);
 
-			Socket sock;
+			Socket sock = new Socket();
+
 			try {
-				sock = new Socket(user.getIP(), port);
-				convList.put(user, new Conversation(sock, this));	//on crée une nouvelle conversation et on l'add à la liste
-				(new Thread( new FenetreMsg(user) )).start(); 		//on ouvre une fenêtre pour la conversation
+				Debugger.log("Controller.launchChatWith: bind socket");
+				sock.bind(new InetSocketAddress(this.getLocalIP(), 0)); //en esperant que ca marche et qu'il choisisse un port appropri� au lieu de 0
+
+				Debugger.log("Controller.launchChatWith: trying to negotiate port");
+				int remotePort = this.negotiatePort(remoteUser, sock.getLocalPort());
+				Debugger.log("Controller.launchChatWith: socket bound, local port = " + sock.getLocalPort());
+
+				InetSocketAddress remoteSocketAddr = new InetSocketAddress(remoteUser.getIP(), remotePort);
+				sock.connect(remoteSocketAddr);
+
+				addConversation(remoteUser, sock); //creates a new Conversation + fenetreMsg
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
+				Debugger.log("Controller.launchChatWith: error binding the socket");
 				e.printStackTrace();
 			}
 		}
 	}
-	
-	private int negotiatePort(User dest, int port) {
-		//TODO : finir ça, il envoie actuellement sont propre port mais ne récupère pas le port de l'autre
-		InetAddress address = dest.getIP() ;//see InetAddress API
-		
-		Control control_packet = new Control(model.getLocalUser().getUsername(), dest.getUsername(), model.getLocalUser().getIP(), dest.getIP(), Control.Control_t.HELLO, port);
+
+	public void addConversation(User remoteUser, Socket sock) {
+		//if the ConvList already contains a conv with this user, it will be replaced/updated (which is probably better behavior than ignoring it)
+		convList.put(remoteUser, new Conversation(sock, this));
+		(new Thread( new FenetreMsg(remoteUser))).start();
+	}
+
+	private int negotiatePort(User dest, int localPort) {
+		Debugger.log("Controller.negotiatePort: starting");
+
+		//creates the packet to be sent with our local port number as data
+		Control controlPacket = new Control(this.getLocalUser().getUsername(), dest.getUsername(), this.getLocalUser().getIP(), dest.getIP(), Control.Control_t.HELLO, localPort);
+
 		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 		ObjectOutputStream os;
 		try {
 			os = new ObjectOutputStream(outputStream);
-			os.writeObject(control_packet);
+			os.writeObject(controlPacket);
 			byte[] buffer = outputStream.toByteArray();
-			
-			DatagramPacket packet = new DatagramPacket(buffer, buffer.length, address, REMOTE_LISTEN_PORT);
+
+			DatagramPacket packet = new DatagramPacket(buffer, buffer.length, dest.getIP(), REMOTE_LISTEN_PORT);
 			UDPtalk.send(packet);
+			Debugger.log("Controller.negotiatePort: HELLO sent, waiting for ACK");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		return 0; //RETURN LE BON PORT ICI
+
+		//wait for ACK
+		do {
+			while (!newUDPPacket) {} //wait for a new packet
+			Debugger.log("Controller.negotiatePort: UDP Control received, type is " + this.newPacket.getType());
+		} while (this.newPacket.getType() != Control.Control_t.ACK); //loop back to waiting if it is not an ACK
+
+		int remotePort = this.newPacket.getData();
+		newUDPPacket = false;
+
+		return remotePort;
 	}
-	
+
 	public User getLocalUser() {
 		return model.getLocalUser();
 	}
-	
+
 	public InetAddress getLocalIP() {
 		return model.getLocalIP();
 	}
-	
+
 	public void setLocalUser(String name) {
 		model.setLocalUser(name);
 	}
@@ -155,9 +219,19 @@ public class Controller {
 		return model ;
 	}
 
-	public void showMessage(String message) {
+	public void showMessage(String message, User remoteUser) {
 		//TODO
 	}
 
+	public void ACKPacketreceived(Control c) {
+		while(this.newUDPPacket) {} //wait if there is an unhandled packet
+		this.newPacket = c;
+		this.newUDPPacket = true;
+	}
+
+
+	public String getMessageFrom(User remoteUser) {
+		return this.convList.get(remoteUser).getMessage();
+	}
 
 }

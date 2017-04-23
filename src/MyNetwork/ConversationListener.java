@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 
 import Controller.Controller;
+import Model.Status;
+import Model.User;
 import Network.Packet.Control;
 import Network.Packet.File;
 import Network.Packet.Message;
@@ -46,7 +48,7 @@ public class ConversationListener extends Thread {
 		} else if (pack instanceof Notification) {
 			//TODO
 		} else if (pack instanceof Text) {
-			controller.showMessage(((Text)pack).getData());
+			controller.showMessage(((Text)pack).getData(), new User(pack.getPseudoSource(), pack.getAddrSource(), Status.Online));
 		} else {
 			System.out.println("Error in ConversationListener.handlePacket : packet type unclear");
 		}

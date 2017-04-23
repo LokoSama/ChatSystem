@@ -29,15 +29,7 @@ public class Model extends Observable {
 		userList.add(new User("Emily", InetAddress.getLoopbackAddress(), Status.Away));
 		userList.add(new User("Jean-Jacques", InetAddress.getLoopbackAddress(), Status.Busy));
 		connected = false;
-				
 	}
-
-	//ELEMENTS COMMUNS : PORT ECOUTE UDP = 
-	//					 PORT ECOUTE TCP = 
-	//TODO
-	//public boolean send (Packet p) {
-	//return true;
-	//	}
 
 	public ArrayList<User> getUserList() {
 		return userList;

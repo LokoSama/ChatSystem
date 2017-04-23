@@ -29,4 +29,8 @@ public class Control extends Packet {
 	public Control_t getType() {
 		return type;
 	}
+
+	public String toString() {
+		return "Control(" + this.type + ", from " + pseudoSource + ", to " + pseudoDestination + ", data = " + data;
+	}
 }
