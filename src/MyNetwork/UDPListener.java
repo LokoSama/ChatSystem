@@ -26,12 +26,12 @@ public class UDPListener extends Thread {
 	}
 
 	public void run() {
-		Debugger.log("UDPListener : starting");
 		byte[] buf = new byte[1024];
 		DatagramPacket packet = new DatagramPacket(buf, buf.length);
 
 		while (true) {
 			try{
+				Debugger.log("UDPListener : waiting for packet");
 				UDPlisten.receive(packet);
 				Debugger.log("UDPListener : packet received");
 
@@ -47,15 +47,12 @@ public class UDPListener extends Thread {
 					Control c = (Control) pack;
 					Debugger.log("UDPListener : received " + c);
 					if (c.getType() == Control.Control_t.HELLO) {
-						Debugger.log("UDPListener : 1");
 						User remoteUser = new User(c.getPseudoSource(), c.getAddrSource(), Status.Online);
-						Debugger.log("UDPListener : 2");
-						Socket sock = new Socket(c.getAddrSource(), c.getData());
-						Debugger.log("UDPListener : 3");
-						controller.addConversation(remoteUser, sock); //add conversation
-						Debugger.log("UDPListener : 4");
-						controller.sendControl(remoteUser, Control.Control_t.ACK, sock.getLocalPort()); //send ACK back with local port number (over UDP)
+						controller.sendControl(remoteUser, Control.Control_t.ACK, 1891); //send ACK back with local port number (over UDP)
 						Debugger.log("UDPListener : sent ACK back");
+						Socket sock = new Socket(c.getAddrSource(), c.getData());
+						controller.addConversation(remoteUser, sock); //add conversation
+						Debugger.log("UDPListener : Conversation added");
 					} else if (c.getType() == Control.Control_t.ACK) {
 						controller.ACKPacketreceived(c);
 					} else {
@@ -67,6 +64,7 @@ public class UDPListener extends Thread {
 			}
 			catch (IOException | ClassNotFoundException e) {
 				//TODO
+				e.printStackTrace();
 			}
 		}
 	}

@@ -50,6 +50,7 @@ public class User {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
+		
 		User other = (User) obj;
 		if (IP == null) {
 			if (other.IP != null)

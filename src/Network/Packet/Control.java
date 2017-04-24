@@ -31,6 +31,6 @@ public class Control extends Packet {
 	}
 
 	public String toString() {
-		return "Control(" + this.type + ", from " + pseudoSource + ", to " + pseudoDestination + ", data = " + data;
+		return "Control(" + this.type + ", from " + pseudoSource + " (" + this.getAddrSource() + "), to " + pseudoDestination + ", data = " + data + ")";
 	}
 }

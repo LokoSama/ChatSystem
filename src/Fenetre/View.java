@@ -54,6 +54,9 @@ public class View implements Observer {
 		return model.getLocalUser();
 	}
 	
+	public String getMessageFrom(User remoteUser) {
+		return controller.getMessageFrom(remoteUser);
+	}	
 	public static void main(String[] args) throws InterruptedException {
 
 	}
@@ -65,6 +68,14 @@ public class View implements Observer {
 			//JOptionPane.showMessageDialog(null, "nouveau user");
 			this.fenetreMain.updateUserList();
 		}
+	}
+
+	public void launchFenetreMsg(User remoteUser) {
+		(new Thread( new FenetreMsg(remoteUser, this))).start();
+	}
+
+	public void sendText(User remoteUser, String newMsg) {
+		controller.sendText(remoteUser, newMsg);
 	}
 }
 

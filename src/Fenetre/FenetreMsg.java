@@ -10,7 +10,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 
-import Controller.Controller;
+import Controller.Debugger;
 import Model.User;
 
 @SuppressWarnings("serial")
@@ -20,11 +20,13 @@ public class FenetreMsg extends JFrame implements ActionListener, Runnable {
 	private JTextArea textSaisi ;
 	private JButton bSend ;
 	private JPanel panel ;
-	private Controller controller;
+	private View view;
 	private User remoteUser;
 
-	public FenetreMsg (User remoteUser) { 
+	public FenetreMsg (User remoteUser, View view) { 
 		this.remoteUser = remoteUser;
+		this.view = view;
+		
 		this.setTitle(remoteUser.getUsername());
 		this.createComponents();		
 		this.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
@@ -37,9 +39,9 @@ public class FenetreMsg extends JFrame implements ActionListener, Runnable {
 	public void run() {
 		String msg;
 		while(true) {
-			msg = controller.getMessageFrom(remoteUser); //blocking call to wait for a new message
+			msg = view.getMessageFrom(remoteUser); //blocking call to wait for a new message
+			Debugger.log("FenetreMsg : réception");
 			this.textHist.append(this.remoteUser.getUsername() + ": " + msg + "\n");
-
 		}
 	}
 
@@ -72,9 +74,9 @@ public class FenetreMsg extends JFrame implements ActionListener, Runnable {
 		Object source = e.getSource();
 		if (source == bSend){
 			String newMsg= this.textSaisi.getText();
-			this.textHist.append(this.controller.getLocalUser().getUsername() + ": " + newMsg + "\n");
+			this.textHist.append(view.getLocalUser().getUsername() + ": " + newMsg + "\n");
 			this.textSaisi.setText("");
-			controller.sendText(remoteUser, newMsg);
+			view.sendText(remoteUser, newMsg);
 		}
 	}
 

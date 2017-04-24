@@ -24,6 +24,15 @@ import Network.Packet.Notification;
 import Network.Packet.Packet;
 import Network.Packet.Text;
 
+/*
+ * TODO :
+ * - DÃ©couverte du rÃ©seau Ã  la connexion
+ * - Gestion notifications
+ * - Gestion statut (affichage, changement, notification des autres)
+ * - DÃ©connexion (cleanup + notif disconnect)
+ * - Multicast
+ * - Fichiers ?
+ */
 
 public class Controller {
 	//attributes
@@ -47,31 +56,32 @@ public class Controller {
 		// + remettre LOCAL_LISTEN_PORT et REMOTE_LISTEN_PORT en "final" (constante)
 		int userNumber = Integer.parseInt(arg0);
 		if (userNumber == 1) {
-			LOCAL_LISTEN_PORT = 2042;
-			REMOTE_LISTEN_PORT = 2043;
+			LOCAL_LISTEN_PORT = 15231;
+			REMOTE_LISTEN_PORT = 17452;
 		} else {
-			LOCAL_LISTEN_PORT = 2043;
-			REMOTE_LISTEN_PORT = 2042;
+			LOCAL_LISTEN_PORT = 17452;
+			REMOTE_LISTEN_PORT = 15231;
 		}
 		
 		this.model = new Model();
 		this.view = new View(this.model,this);
 		model.addObserver(view);
 		
-		//FIXME: il faut se login vite, sinon le addUser décède parce qu'on est pas co
+		/*
+		//FIXME: il faut se login vite, sinon le addUser decede parce qu'on est pas co
 		Tempo(10000);
 		model.addUser("le nouveau", InetAddress.getLoopbackAddress(), Status.Busy); //permet de tester le pattern Observable Observer
 		Tempo(10000);
 		model.setStatus("le nouveau", InetAddress.getLoopbackAddress(), Status.Online);
 		Tempo(10000);
 		model.deleteUser("le nouveau", InetAddress.getLoopbackAddress());
-		Tempo(10000);
+		Tempo(10000);*/
 		
 		initNetwork();
 	}
 	
 	
-	private void Tempo(int time) { //pour les tests
+	public static void Tempo(int time) { //pour les tests
 		try {
 			Thread.sleep(time);
 		} catch (InterruptedException e) {
@@ -99,13 +109,14 @@ public class Controller {
 	}
 
 	public void sendText(User dest, String data) {
-		Packet pack = new Text(this.getLocalUser().getUsername(), dest.getUsername(), this.getLocalIP(), dest.getIP(), data);
+		Debugger.log("Controller.sendText : sending");
+		Text pack = new Text(this.getLocalUser().getUsername(), dest.getUsername(), this.getLocalIP(), dest.getIP(), data);
 		Conversation conv = convList.get(dest);
 		conv.send(pack);
 	}
 
 	public void sendControl(User dest, Control.Control_t type, int data) {
-		Control controlPacket = new Control(this.getLocalUser().getUsername(), dest.getUsername(), this.getLocalUser().getIP(), dest.getIP(), Control.Control_t.HELLO, data);
+		Control controlPacket = new Control(this.getLocalUser().getUsername(), dest.getUsername(), this.getLocalUser().getIP(), dest.getIP(), type, data);
 
 		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 		ObjectOutputStream os;
@@ -143,21 +154,22 @@ public class Controller {
 	public void launchChatWith(User remoteUser) {
 		Debugger.log("Controller.launchChatWith: start");
 		if (convList.containsKey(remoteUser)) {
-			//TODO : notifier l'utilisateur qu'il a deja  une conv en cours avec l'autre et/ou reafficher la fenetre de conv
+			//TODO : notifier l'utilisateur qu'il a deja une conv en cours avec l'autre et/ou reafficher la fenetre de conv
 		} else {
 
-			Socket sock = new Socket();
+			Socket sock;
+			ServerSocket servSock;
 
 			try {
-				Debugger.log("Controller.launchChatWith: bind socket");
-				sock.bind(new InetSocketAddress(this.getLocalIP(), 0)); //en esperant que ca marche et qu'il choisisse un port approprié au lieu de 0
-
+				servSock = new ServerSocket(0);
+				int remotePort = this.negotiatePort(remoteUser, servSock.getLocalPort());
+				Debugger.log("launchChatWith : socket server waiting");
+				sock = servSock.accept();
+				
 				Debugger.log("Controller.launchChatWith: trying to negotiate port");
-				int remotePort = this.negotiatePort(remoteUser, sock.getLocalPort());
-				Debugger.log("Controller.launchChatWith: socket bound, local port = " + sock.getLocalPort());
 
-				InetSocketAddress remoteSocketAddr = new InetSocketAddress(remoteUser.getIP(), remotePort);
-				sock.connect(remoteSocketAddr);
+				//InetSocketAddress remoteSocketAddr = new InetSocketAddress(remoteUser.getIP(), remotePort);
+				//sock.connect(remoteSocketAddr);
 
 				addConversation(remoteUser, sock); //creates a new Conversation + fenetreMsg
 			} catch (IOException e) {
@@ -171,7 +183,7 @@ public class Controller {
 	public void addConversation(User remoteUser, Socket sock) {
 		//if the ConvList already contains a conv with this user, it will be replaced/updated (which is probably better behavior than ignoring it)
 		convList.put(remoteUser, new Conversation(sock, this));
-		(new Thread( new FenetreMsg(remoteUser))).start();
+		view.launchFenetreMsg(remoteUser);
 	}
 
 	private int negotiatePort(User dest, int localPort) {
@@ -197,7 +209,10 @@ public class Controller {
 
 		//wait for ACK
 		do {
-			while (!newUDPPacket) {} //wait for a new packet
+			Debugger.log("BLOUBLOU");
+			while (this.newUDPPacket == false) {
+				Tempo(500);
+			} //wait for a new packet
 			Debugger.log("Controller.negotiatePort: UDP Control received, type is " + this.newPacket.getType());
 		} while (this.newPacket.getType() != Control.Control_t.ACK); //loop back to waiting if it is not an ACK
 
@@ -227,19 +242,13 @@ public class Controller {
 		return model ;
 	}
 
-	public void showMessage(String message, User remoteUser) {
-		//TODO
-	}
-
 	public void ACKPacketreceived(Control c) {
 		while(this.newUDPPacket) {} //wait if there is an unhandled packet
 		this.newPacket = c;
 		this.newUDPPacket = true;
 	}
 
-
 	public String getMessageFrom(User remoteUser) {
 		return this.convList.get(remoteUser).getMessage();
 	}
-
 }
