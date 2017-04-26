@@ -47,6 +47,9 @@ public class Model extends Observable {
 		this.localUser.setName(name);
 	}
 
+	public void setLocalStatus(Status status){
+		this.localUser.setStatus(status);
+	}
 	public void setStatus(String name,InetAddress ip, Status status){
 		int index = userList.indexOf(new User(name,ip,status));
 		userList.set(index,new User(name,ip,status));

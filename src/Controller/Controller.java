@@ -233,6 +233,10 @@ public class Controller {
 	public void setLocalUser(String name) {
 		model.setLocalUser(name);
 	}
+	
+	public void setLocalStatus(Status status){
+		model.setLocalStatus(status);
+	}
 
 	public View getView(){
 		return view ;

@@ -9,6 +9,7 @@ import javax.swing.JOptionPane;
 
 import Controller.Controller;
 import Model.Model;
+import Model.Status;
 import Model.User;
 
 //le début est OK :
@@ -36,7 +37,10 @@ public class View implements Observer {
 		this.fenetreMain.pack();
 		this.fenetreMain.setVisible(true);
 	}
-
+	
+	public void setLocalStatus (Status status){
+		controller.setLocalStatus(status);
+	}
 	public void launchChatWith(User user) {
 		controller.launchChatWith(user);
 	}

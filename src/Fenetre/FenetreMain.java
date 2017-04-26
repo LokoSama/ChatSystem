@@ -17,6 +17,7 @@ import javax.swing.ListSelectionModel;
 import javax.swing.ScrollPaneConstants;
 
 import Controller.Debugger;
+import Model.Status;
 import Model.User;
 
 
@@ -26,11 +27,15 @@ public class FenetreMain extends JFrame implements ActionListener {
 
 	//Attributs
 	private JList<User> jlistUsers ;
+	private JList<Model.Status> jlistStatus;
+	DefaultListModel<Model.Status> jlistMStatus ;
 	DefaultListModel<User> jlistModel;
 	private JButton bChat ; 
+	private JButton bStatus;
 	private JTextArea textNotif;
+	private JTextArea textCurrentStatus;
 	private JScrollPane scrollPaneNotif ; 
-	
+		
 	View view;
 	
 	//Constructor
@@ -46,32 +51,41 @@ public class FenetreMain extends JFrame implements ActionListener {
 		
 		//Buttons	
 		bChat= new JButton("Chat with");
-
+		bStatus = new JButton("Set new status");
 		//Listeners
 		bChat.addActionListener(this);
-
+		bStatus.addActionListener(this);
 		//Panel
 		JPanel panel = new JPanel();
 
 		//TextArea 
 		textNotif  = new JTextArea(5,20);
-
+		textCurrentStatus = new JTextArea("Statut actuel :" + view.getLocalUser().getStatus().name(),5,20);
+		textCurrentStatus.setEditable(false);
+			
 		//Scroll
 		scrollPaneNotif = new JScrollPane(textNotif);
 		scrollPaneNotif.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 		scrollPaneNotif.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
-
+		
 		//Randoms gens
 		//User[] data = {new User("name",InetAddress.getLocalHost(),Status.Online)};
 
 		//JList model (the content, modify this to modify the JList)
 		jlistModel = new DefaultListModel<User>();
-
+		
+		jlistMStatus = new DefaultListModel<Model.Status>();
+		jlistMStatus.addElement(Status.Online); 
+		jlistMStatus.addElement(Status.Busy); 
+		jlistMStatus.addElement(Status.Away); 
+		jlistMStatus.addElement(Status.Offline); 
 		//JList
 		jlistUsers = new JList<User>(jlistModel);
 		jlistUsers.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 		jlistUsers.setLayoutOrientation(JList.HORIZONTAL_WRAP);
-
+		jlistStatus = new JList<Model.Status>(jlistMStatus);
+		jlistStatus.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
+		jlistStatus.setLayoutOrientation(JList.HORIZONTAL_WRAP);
 		//Setup
 		//set
 		panel.setBorder(BorderFactory.createEmptyBorder(30,30,10,30));
@@ -79,8 +93,11 @@ public class FenetreMain extends JFrame implements ActionListener {
 
 		//add
 		panel.add(jlistUsers);
-		panel.add(scrollPaneNotif);
+		panel.add(bStatus);
 		panel.add(bChat);
+		panel.add(jlistStatus);
+		panel.add(scrollPaneNotif);
+		panel.add(textCurrentStatus);
 		this.add(panel);
 		
 	}
@@ -104,8 +121,12 @@ public class FenetreMain extends JFrame implements ActionListener {
 			JOptionPane.showMessageDialog(null, "Tentative de chat avec "+ jlistUsers.getSelectedValue());
 			view.launchChatWith(jlistUsers.getSelectedValue());
 		}
+		if (source == bStatus){
+			JOptionPane.showMessageDialog(null, "Nouveau statut : "+ jlistStatus.getSelectedValue());
+			textCurrentStatus.setText("Statut actuel : " + jlistStatus.getSelectedValue().name());
+			//TODO : add sendNotif(statushaschanged) 
+		}
 
 	}
-
-	}
+}
 
