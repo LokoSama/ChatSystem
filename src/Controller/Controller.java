@@ -49,7 +49,7 @@ public class Controller {
 
 	//TCP networking
 	private HashMap<User,Conversation> convList; //contains all open Conversations
-
+	
 	//Constructeur
 	public Controller(String arg0) {
 		//POUR LANCER 2 CLIENTS SUR UN PC, A ENLEVER APRES
@@ -68,7 +68,6 @@ public class Controller {
 		model.addObserver(view);
 		
 		/*
-		//FIXME: il faut se login vite, sinon le addUser decede parce qu'on est pas co
 		Tempo(10000);
 		model.addUser("le nouveau", InetAddress.getLoopbackAddress(), Status.Busy); //permet de tester le pattern Observable Observer
 		Tempo(10000);

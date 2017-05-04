@@ -12,6 +12,7 @@ import Controller.Debugger;
 import Model.Status;
 import Model.User;
 import Network.Packet.Control;
+import Network.Packet.Notification;
 import Network.Packet.Packet;
 
 public class UDPListener extends Thread {
@@ -58,6 +59,8 @@ public class UDPListener extends Thread {
 					} else {
 						System.out.println("Error in UDPListener.run(): received Control is neither HELLO nor ACK");
 					}
+				} else if (pack instanceof Notification) {
+					//TODO : gérer les messages CONNECT, ACK_CONNECT, STATUTS_CHANGE...
 				} else {
 					System.out.println("Error in UDPListener.run(): received packet is not Control");
 				}
