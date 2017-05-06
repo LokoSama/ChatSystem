@@ -85,7 +85,6 @@ public class FenetreLogin extends JFrame implements ActionListener {
 			String newUser= this.textPseudo.getText();
 			JOptionPane.showMessageDialog(null, "Login de "+ newUser);
 			this.textPseudo.setText("");
-			System.out.println("dans le listener");
 			view.login(newUser);
 			this.setVisible(false);
 		}

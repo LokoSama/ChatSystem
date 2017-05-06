@@ -35,7 +35,7 @@ public class Conversation {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 		Debugger.log("Conversation : launching listener thread");
 		listener.start();
 	}
@@ -55,7 +55,7 @@ public class Conversation {
 
 	public String getMessage() {
 		while(this.unreadMessages.isEmpty()) {
-			controller.Tempo(500);
+			Controller.Tempo(500);
 		} //wait for a message
 		String msg = this.unreadMessages.get(0);
 		this.unreadMessages.remove(0);
@@ -64,6 +64,12 @@ public class Conversation {
 
 	public void close() {
 		//TODO : cleanup des sockets, des streams et du thread ConversationListener associe
+		try {
+			sock.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 }

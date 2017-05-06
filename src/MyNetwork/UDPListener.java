@@ -35,49 +35,57 @@ public class UDPListener extends Thread {
 			try{
 				Debugger.log("UDPListener : waiting for packet");
 				UDPlisten.receive(packet);
-				Debugger.log("UDPListener : packet received");
 
 				ByteArrayInputStream byteIS = new ByteArrayInputStream(packet.getData());
 				ObjectInputStream objectIS = new ObjectInputStream(byteIS);
 				Packet pack = (Packet)objectIS.readObject();
-
-				//TODO : des tests, pour comprendre ce qui merde... le listener se bloque entre "UDPListener : 2" et "UDPListener : 3"
-				//possiblement parce que je fais tourner les deux clients en local ?
-
-
+				
 				if (pack instanceof Control) {
 					Control c = (Control) pack;
-					Debugger.log("UDPListener : received " + c);
+					Debugger.log("UDPListener : Received " + c.getType() + " from " + c.getPseudoSource());
+					
 					if (c.getType() == Control.Control_t.HELLO) {
-						User remoteUser = new User(c.getPseudoSource(), c.getAddrSource(), Status.Online);
+						User remoteUser = new User(c.getPseudoSource(), c.getAddrSource(), Status.Online); //TODO: incorrect, il faut récupérer le user dans Model.userList et pas en créer un autre
 						controller.sendControl(remoteUser, Control.Control_t.ACK, 1891); //send ACK back with local port number (over UDP)
-						Debugger.log("UDPListener : sent ACK back");
 						Socket sock = new Socket(c.getAddrSource(), c.getData());
 						controller.addConversation(remoteUser, sock); //add conversation
 						Debugger.log("UDPListener : Conversation added");
+						
 					} else if (c.getType() == Control.Control_t.ACK) {
 						controller.ACKPacketreceived(c);
 					} else {
-						System.out.println("Error in UDPListener.run(): received Control is neither HELLO nor ACK");
+						System.out.println("ERROR in UDPListener.run(): received Control is neither HELLO nor ACK");
 					}
 				} else if (pack instanceof Notification) {
 					Notification n = (Notification) pack;
+					Debugger.log("UDPListener : Received " + n.getType() + " from " + n.getPseudoSource());
+
 					if (n.getType() == Notification_type.CONNECT)
 					{
-						controller.getView().printNotif("Un utilisateur s'est connect�");
+						//On ajoute l'user à la liste
+						controller.getView().printNotif(n.getPseudoSource() + " s'est connecté(e)");
 						controller.getModel().addUser(n.getPseudoSource(),n.getAddrSource(), Status.Online);
+						//On renvoie ACK_CONNECT pour se faire connaitre, et on envoie son propre statut
+						User tmpDest = new User(n.getPseudoSource(),n.getAddrSource(), Status.Online);
+						controller.sendNotif(tmpDest, Notification_type.ACK_CONNECT, "");
+						controller.sendNotif(tmpDest, Notification_type.STATUS_CHANGE, controller.getModel().getLocalUser().getStatus().toString());
 					}
-					else if (n.getType() == Notification_type.ACK_CONNECT){
+					else if (n.getType() == Notification_type.ACK_CONNECT) {
+						//cette ligne fait doublon si on considère que les autres users enverront forcément un ACK_CONNECT + un STATUS_CHANGE pour nous informer de leur statut
+						//puisque ça affichera un message plus détaillé
+						//controller.getView().printNotif(n.getPseudoSource() + " est en ligne");
+						Debugger.log("About to add the following user : \n- NAME : " + n.getPseudoSource() + "\n- IP : " + n.getAddrSource());
+						controller.getModel().addUser(n.getPseudoSource(), n.getAddrSource(), Status.Online);
+					}
+					else if(n.getType() == Notification_type.STATUS_CHANGE) {
+						Status newStatus = controller.getModel().statusFromString(n.getData());
+						controller.getView().printNotif(n.getPseudoSource() + " est " + newStatus);
+						controller.getModel().setStatus(n.getPseudoSource(), n.getAddrSource(), newStatus);
+					}
+					else if (n.getType() == Notification_type.ACK) {
 						//TODO
 					}
-					else if(n.getType() == Notification_type.STATUS_CHANGE){
-						controller.getView().printNotif("Un utilisateur a chang� de statut");
-						controller.getModel().setStatus(n.getPseudoSource(), n.getAddrSource(),controller.getModel().statusFromString(n.getData()));
-					}
-					else if (n.getType() == Notification_type.ACK){
-					//TODO	
-					}
-					else if (n.getType() == Notification_type.MISC){
+					else if (n.getType() == Notification_type.MISC) {
 						//TODO
 					}
 					else if (n.getType() == Notification_type.ALIVE) {
@@ -87,11 +95,11 @@ public class UDPListener extends Thread {
 						//TODO
 					}
 					else {
-						System.out.println("Error in UDPListener.run(): received packet expected Notification has no legit Notification type");
+						System.out.println("ERROR in UDPListener.run(): received packet expected Notification has no legit Notification type");
 					}
 					//TODO : gérer les messages CONNECT, ACK_CONNECT, STATUTS_CHANGE...
 				} else {
-					System.out.println("Error in UDPListener.run(): received packet is not Control");
+					System.out.println("ERROR in UDPListener.run(): received packet is not Control");
 				}
 			}
 			catch (IOException | ClassNotFoundException e) {

@@ -23,6 +23,7 @@ public class View implements Observer {
 
 	//attribut fen�tre
 	private FenetreMain fenetreMain; //n�cessaire pour propager l'information depuis Model
+
 	//Constructeur
 	public View (Model model,Controller controller) {
 		this.model = model;
@@ -33,13 +34,12 @@ public class View implements Observer {
 	}
 
 	public void initMain() { 
-		//initNetwork(); //first network functionality initialization
 		System.out.println("Envoi du paquet CONNECT en broadcast \n");
-		this.controller.broadcastNotification(Notification_type.CONNECT,"lul"); 
+		this.controller.broadcastNotification(Notification_type.CONNECT, "lul"); 
 		this.fenetreMain = new FenetreMain(this);
 		this.fenetreMain.pack();
 		this.fenetreMain.setVisible(true);
-	
+
 	}
 
 	public void setLocalStatus (Status status){
@@ -52,6 +52,7 @@ public class View implements Observer {
 	public void login(String username) {
 		controller.setLocalUser(username);
 		initMain();
+		model.connectUser();
 	}
 
 	public ArrayList<User> getUserList() {
@@ -84,6 +85,7 @@ public class View implements Observer {
 
 	public void printNotif (String txt){
 		this.fenetreMain.setNotif(txt);
+
 
 	}
 	public void sendText(User remoteUser, String newMsg) {

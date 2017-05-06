@@ -1,16 +1,18 @@
 package Controller;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 
-import Fenetre.FenetreMsg;
 import Fenetre.View;
 import Model.Model;
 import Model.Status;
@@ -18,24 +20,13 @@ import Model.User;
 import MyNetwork.Conversation;
 import MyNetwork.Tools;
 import MyNetwork.UDPListener;
-import Network.NetworkUtils;
 import Network.Packet.Control;
-import Network.Packet.File;
-import Network.Packet.Message;
 import Network.Packet.Notification;
 import Network.Packet.Notification.Notification_type;
 import Network.Packet.Packet;
 import Network.Packet.Text;
 
-/*
- * TODO :
- * - Découverte du réseau à la connexion
- * - Gestion notifications
- * - Gestion statut (affichage, changement, notification des autres)
- * - Déconnexion (cleanup + notif disconnect)
- * - Multicast
- * - Fichiers ?
- */
+
 
 public class Controller {
 	//attributes
@@ -47,12 +38,12 @@ public class Controller {
 	private DatagramSocket UDPtalk;
 	private int LOCAL_LISTEN_PORT = 2042;
 	private int REMOTE_LISTEN_PORT = 2042;
-	private boolean newUDPPacket;
+	private boolean newACKPacket;
 	private Control newPacket;
 
 	//TCP networking
 	private HashMap<User,Conversation> convList; //contains all open Conversations
-	
+
 	//Constructeur
 	public Controller(String arg0) {
 		//POUR LANCER 2 CLIENTS SUR UN PC, A ENLEVER APRES
@@ -65,11 +56,11 @@ public class Controller {
 			LOCAL_LISTEN_PORT = 17452;
 			REMOTE_LISTEN_PORT = 15231;
 		}
-		
+
 		this.model = new Model();
 		this.view = new View(this.model,this);
 		model.addObserver(view);
-		
+
 		/*
 		Tempo(10000);
 		model.addUser("le nouveau", InetAddress.getLoopbackAddress(), Status.Busy); //permet de tester le pattern Observable Observer
@@ -78,12 +69,12 @@ public class Controller {
 		Tempo(10000);
 		model.deleteUser("le nouveau", InetAddress.getLoopbackAddress());
 		Tempo(10000);*/
-		
+
 		initNetwork();
-		
+
 	}
-	
-	
+
+
 	public static void Tempo(int time) { //pour les tests
 		try {
 			Thread.sleep(time);
@@ -92,9 +83,9 @@ public class Controller {
 			e.printStackTrace();
 		}
 	}
-	
+
 	private void initNetwork() {
-		this.newUDPPacket = false;
+		this.newACKPacket = false;
 		//We use 2 UDP sockets to accept incoming HELLO requests and answer with a port number
 		//We use TCP Conversations to handle each conversation separately, stored in a HashMap
 		try {
@@ -104,13 +95,20 @@ public class Controller {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 		convList = new HashMap<User,Conversation>();
-		
+
 		UDPListener UDPL = new UDPListener(UDPlisten, this); //separate thread to listen to incoming UDP datagrams
+		while (! model.userIsConnected())
+			try {
+				Thread.sleep(50);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 		UDPL.start();
 	}
 
+	//Fonctions pour l'envoi par TCP
 	public void sendText(User dest, String data) {
 		Debugger.log("Controller.sendText : sending");
 		Text pack = new Text(this.getLocalUser().getUsername(), dest.getUsername(), this.getLocalIP(), dest.getIP(), data);
@@ -118,39 +116,63 @@ public class Controller {
 		conv.send(pack);
 	}
 
-	public void sendControl(User dest, Control.Control_t type, int data) {
-		Control controlPacket = new Control(this.getLocalUser().getUsername(), dest.getUsername(), this.getLocalUser().getIP(), dest.getIP(), type, data);
+	public void sendFile(User dest, String strPath) {
+		Debugger.log("Controller.sendFile : sending");
+		File f = new File(strPath);
+		Path filePath = Paths.get(strPath);
+		byte[] content;
+		Network.Packet.File pack = null;
 
-		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-		ObjectOutputStream os;
-		try {
-			os = new ObjectOutputStream(outputStream);
-			os.writeObject(controlPacket);
-			byte[] buffer = outputStream.toByteArray();
+		if (Files.isReadable(filePath)) {
+			try {
+				content = Files.readAllBytes(filePath);
 
-			DatagramPacket packet = new DatagramPacket(buffer, buffer.length, dest.getIP(), REMOTE_LISTEN_PORT);
-			UDPtalk.send(packet);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+				pack = new Network.Packet.File(this.getLocalUser().getUsername(), dest.getUsername(), this.getLocalIP(),
+						dest.getIP(), f.getName(), Files.probeContentType(filePath), Files.size(filePath), content);
+			} catch (IOException e) {
+				System.out.println("ERROR in Controller.sendFile : could not read file content");
+				e.printStackTrace();
+			}
+		}
+
+		Conversation conv = convList.get(dest);
+		conv.send(pack);
+	}
+
+
+	//Fonction (un peu) générique pour envoyer un packet (càd soit une Notif, soit un Control) par UDP à l'adresse destIP
+	public void sendUDP(InetAddress destIP, Packet genericPack) {
+		if (genericPack instanceof Notification || genericPack instanceof Control) {
+			ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+			ObjectOutputStream os;
+			try {
+				os = new ObjectOutputStream(outputStream);
+				os.writeObject(genericPack);
+				byte[] buffer = outputStream.toByteArray();
+
+				DatagramPacket UDPpacket = new DatagramPacket(buffer, buffer.length, destIP, REMOTE_LISTEN_PORT);
+				UDPtalk.send(UDPpacket);
+				Debugger.log("sendUDP : " + (genericPack instanceof Notification ? "Notification" : "Control") + " sent");
+			} catch (IOException e) {
+				e.printStackTrace();
+				System.out.println("ERROR in Controller.sendUDP : could not create/send datagram");
+			}
+		} else {
+			System.out.println("ERROR in Controller.sendUDP : expected Control or Notification object as argument");
 		}
 	}
 
-	public void send(User dest, Packet pack) {
+	public void sendControl(User dest, Control.Control_t type, int data) {
+		Control pack = new Control(this.getLocalUser().getUsername(), dest.getUsername(), this.getLocalUser().getIP(),
+				dest.getIP(), type, data);
+		this.sendUDP(dest.getIP(), pack);
+	}
 
-		if (pack instanceof Control) {
-			//done sendControl
-		} else if (pack instanceof File) {	
-			//TODO
-		} else if (pack instanceof Message) {
-			//TODO
-		} else if (pack instanceof Notification) {
-			//TODO
-		} else if (pack instanceof Text) {
-			//done sendText
-		} else {
-			System.out.println("Error in Controller.send : packet type unclear");
-		}
+	public void sendNotif(User dest, Notification_type type, String data) {
+		Debugger.log("Controller.sendNotif : sending " + type + " to " + dest.getUsername());
+
+		Notification pack = new Notification(this.getLocalUser().getUsername(), dest.getUsername(), this.getLocalIP(), dest.getIP(), type, data);
+		this.sendUDP(dest.getIP(), pack);
 	}
 
 
@@ -168,7 +190,7 @@ public class Controller {
 				int remotePort = this.negotiatePort(remoteUser, servSock.getLocalPort());
 				Debugger.log("launchChatWith : socket server waiting");
 				sock = servSock.accept();
-				
+
 				Debugger.log("Controller.launchChatWith: trying to negotiate port");
 
 				//InetSocketAddress remoteSocketAddr = new InetSocketAddress(remoteUser.getIP(), remotePort);
@@ -195,32 +217,19 @@ public class Controller {
 		//creates the packet to be sent with our local port number as data
 		Control controlPacket = new Control(this.getLocalUser().getUsername(), dest.getUsername(), this.getLocalUser().getIP(), dest.getIP(), Control.Control_t.HELLO, localPort);
 
-		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-		ObjectOutputStream os;
-		try {
-			os = new ObjectOutputStream(outputStream);
-			os.writeObject(controlPacket);
-			byte[] buffer = outputStream.toByteArray();
-
-			DatagramPacket packet = new DatagramPacket(buffer, buffer.length, dest.getIP(), REMOTE_LISTEN_PORT);
-			UDPtalk.send(packet);
-			Debugger.log("Controller.negotiatePort: HELLO sent, waiting for ACK");
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
+		this.sendUDP(dest.getIP(), controlPacket);
+		Debugger.log("Controller.negotiatePort: HELLO sent, waiting for ACK");
+		
 		//wait for ACK
 		do {
-			Debugger.log("BLOUBLOU");
-			while (this.newUDPPacket == false) {
+			while (this.newACKPacket == false) {
 				Tempo(50);
 			} //wait for a new packet
 			Debugger.log("Controller.negotiatePort: UDP Control received, type is " + this.newPacket.getType());
 		} while (this.newPacket.getType() != Control.Control_t.ACK); //loop back to waiting if it is not an ACK
 
 		int remotePort = this.newPacket.getData();
-		newUDPPacket = false;
+		newACKPacket = false;
 
 		return remotePort;
 	}
@@ -239,9 +248,8 @@ public class Controller {
 			e.printStackTrace();
 		}
 
-
 	}
-	
+
 	public User getLocalUser() {
 		return model.getLocalUser();
 	}
@@ -253,10 +261,10 @@ public class Controller {
 	public void setLocalUser(String name) {
 		model.setLocalUser(name);
 	}
-	
+
 	public void setLocalStatus(Status status){
 		model.setLocalStatus(status);
-		
+
 		String msg = status.name();
 		this.broadcastNotification(Notification_type.STATUS_CHANGE, msg);
 		System.out.println("on change de statut");
@@ -271,12 +279,13 @@ public class Controller {
 	}
 
 	public void ACKPacketreceived(Control c) {
-		while(this.newUDPPacket) {} //wait if there is an unhandled packet
+		while(this.newACKPacket) {} //wait if there is an unhandled packet
 		this.newPacket = c;
-		this.newUDPPacket = true;
+		this.newACKPacket = true;
 	}
 
 	public String getMessageFrom(User remoteUser) {
 		return this.convList.get(remoteUser).getMessage();
 	}
+
 }

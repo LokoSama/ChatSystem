@@ -116,8 +116,6 @@ public class FenetreMain extends JFrame implements ActionListener {
 	
 	public void setNotif(String txt){
 		this.textNotif.append(txt+"\n");
-		
-		
 	}
 	
 	

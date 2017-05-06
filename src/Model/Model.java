@@ -12,7 +12,6 @@ public class Model extends Observable {
 
 	//Attributes
 	private User localUser;
-	private InetAddress localIP;
 	private ArrayList<User> userList;
 	private boolean connected ;
 
@@ -36,7 +35,7 @@ public class Model extends Observable {
 	}
 
 	public InetAddress getLocalIP() {
-		return localIP;
+		return localUser.getIP();
 	}
 	
 	public User getLocalUser() {
@@ -92,7 +91,6 @@ public class Model extends Observable {
 		return ret;
 	}
 
-	
 	public boolean deleteUser(String name, InetAddress ip) {
 		
 		boolean ret = userList.remove(new User(name, ip, Status.Busy));
@@ -100,6 +98,18 @@ public class Model extends Observable {
 		notifyObservers();
 		System.out.println(ret);
 		return ret;
+	}
+	
+	public boolean userIsConnected() {
+		return connected;
+	}
+
+	public void connectUser() {
+		connected = true;
+	}
+	
+	public void disconnectUser() {
+		connected = false;
 	}
 
 }

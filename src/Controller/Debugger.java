@@ -6,6 +6,6 @@ public class Debugger {
 	
 	public static void log(String debugMessage) {
 		if (Debugger.enabled)
-			System.out.println("***** " + debugMessage);
+			System.out.println("*** " + debugMessage);
 	}
 }
