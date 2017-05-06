@@ -25,9 +25,9 @@ public class Model extends Observable {
 			e.printStackTrace();
 		}
 		userList = new ArrayList<User>();
-		userList.add(new User("Michel", InetAddress.getLoopbackAddress(), Status.Online));
-		userList.add(new User("Emily", InetAddress.getLoopbackAddress(), Status.Away));
-		userList.add(new User("Jean-Jacques", InetAddress.getLoopbackAddress(), Status.Busy));
+		//userList.add(new User("Michel", InetAddress.getLoopbackAddress(), Status.Online));
+		//userList.add(new User("Emily", InetAddress.getLoopbackAddress(), Status.Away));
+		//userList.add(new User("Jean-Jacques", InetAddress.getLoopbackAddress(), Status.Busy));
 		connected = false;
 	}
 
@@ -49,13 +49,41 @@ public class Model extends Observable {
 
 	public void setLocalStatus(Status status){
 		this.localUser.setStatus(status);
+		setChanged();
+		notifyObservers();
 	}
 	public void setStatus(String name,InetAddress ip, Status status){
-		int index = userList.indexOf(new User(name,ip,status));
+		System.out.println("appel set status");
+		int index=0;
+		boolean find = false;
+		while (index < userList.size() && !find){
+		if (userList.get(index).getUsername() == name && userList.get(index).getIP() == ip ) {
+			find = true;
+		}
+		index ++;
+		}
+		index --;
+		if (index > -1  && index < userList.size() ) {
 		userList.set(index,new User(name,ip,status));
 		setChanged();
 		notifyObservers();
 		}
+		else {
+			System.out.println("Fail set status, index =" + index + "\n");
+		}
+		}
+	
+	public Status statusFromString(String s) {
+		
+		if (s.equals("Online"))
+			return Status.Online;
+		else if (s.equals("Busy"))
+			return Status.Busy;
+		else if (s.equals("Away"))
+			return Status.Away;
+		else
+			return Status.Offline;
+	}
 	
 	public boolean addUser(String name, InetAddress ip, Status status) {
 		boolean ret = userList.add(new User(name, ip, status));
@@ -64,6 +92,7 @@ public class Model extends Observable {
 		return ret;
 	}
 
+	
 	public boolean deleteUser(String name, InetAddress ip) {
 		
 		boolean ret = userList.remove(new User(name, ip, Status.Busy));

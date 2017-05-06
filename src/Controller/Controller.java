@@ -16,11 +16,14 @@ import Model.Model;
 import Model.Status;
 import Model.User;
 import MyNetwork.Conversation;
+import MyNetwork.Tools;
 import MyNetwork.UDPListener;
+import Network.NetworkUtils;
 import Network.Packet.Control;
 import Network.Packet.File;
 import Network.Packet.Message;
 import Network.Packet.Notification;
+import Network.Packet.Notification.Notification_type;
 import Network.Packet.Packet;
 import Network.Packet.Text;
 
@@ -77,6 +80,7 @@ public class Controller {
 		Tempo(10000);*/
 		
 		initNetwork();
+		
 	}
 	
 	
@@ -210,7 +214,7 @@ public class Controller {
 		do {
 			Debugger.log("BLOUBLOU");
 			while (this.newUDPPacket == false) {
-				Tempo(500);
+				Tempo(50);
 			} //wait for a new packet
 			Debugger.log("Controller.negotiatePort: UDP Control received, type is " + this.newPacket.getType());
 		} while (this.newPacket.getType() != Control.Control_t.ACK); //loop back to waiting if it is not an ACK
@@ -221,6 +225,23 @@ public class Controller {
 		return remotePort;
 	}
 
+	public void broadcastNotification(Notification.Notification_type type, String data) {
+		Notification notification = new Notification(this.getLocalUser().getUsername(), "bcast", this.getLocalUser().getIP(), Tools.getBroadcastAddress(), type, data);
+		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+		ObjectOutputStream os = null;
+		try {
+			os = new ObjectOutputStream(outputStream);
+			os.writeObject(notification);
+			byte[] buffer = outputStream.toByteArray();
+			DatagramPacket sendPacket = new DatagramPacket(buffer, buffer.length, Tools.getBroadcastAddress(), REMOTE_LISTEN_PORT);
+			UDPtalk.send(sendPacket);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+
+	}
+	
 	public User getLocalUser() {
 		return model.getLocalUser();
 	}
@@ -235,6 +256,10 @@ public class Controller {
 	
 	public void setLocalStatus(Status status){
 		model.setLocalStatus(status);
+		
+		String msg = status.name();
+		this.broadcastNotification(Notification_type.STATUS_CHANGE, msg);
+		System.out.println("on change de statut");
 	}
 
 	public View getView(){

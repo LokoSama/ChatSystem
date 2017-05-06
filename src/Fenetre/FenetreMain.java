@@ -114,6 +114,13 @@ public class FenetreMain extends JFrame implements ActionListener {
 		this.initUserList(view.getUserList());
 	}
 	
+	public void setNotif(String txt){
+		this.textNotif.append(txt+"\n");
+		
+		
+	}
+	
+	
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		Object source = e.getSource();
@@ -122,9 +129,10 @@ public class FenetreMain extends JFrame implements ActionListener {
 			view.launchChatWith(jlistUsers.getSelectedValue());
 		}
 		if (source == bStatus){
-			JOptionPane.showMessageDialog(null, "Nouveau statut : "+ jlistStatus.getSelectedValue());
-			textCurrentStatus.setText("Statut actuel : " + jlistStatus.getSelectedValue().name());
-			//TODO : add sendNotif(statushaschanged) 
+			Status select = jlistStatus.getSelectedValue();
+			JOptionPane.showMessageDialog(null, "Nouveau statut : "+ select);
+			textCurrentStatus.setText("Statut actuel : " + select.name());
+			this.view.setLocalStatus(select);
 		}
 
 	}

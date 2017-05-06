@@ -11,6 +11,7 @@ import Controller.Controller;
 import Model.Model;
 import Model.Status;
 import Model.User;
+import Network.Packet.Notification.Notification_type;
 
 //le début est OK :
 //TODO lorsque le listener des fenetres doit envoyer des choses, il appelle des fonctions du controller, le squelette de l algo se trouve ds le controller
@@ -19,7 +20,7 @@ public class View implements Observer {
 	//attributs
 	private Controller controller;
 	private Model model;
-	
+
 	//attribut fen�tre
 	private FenetreMain fenetreMain; //n�cessaire pour propager l'information depuis Model
 	//Constructeur
@@ -33,18 +34,21 @@ public class View implements Observer {
 
 	public void initMain() { 
 		//initNetwork(); //first network functionality initialization
+		System.out.println("Envoi du paquet CONNECT en broadcast \n");
+		this.controller.broadcastNotification(Notification_type.CONNECT,"lul"); 
 		this.fenetreMain = new FenetreMain(this);
 		this.fenetreMain.pack();
 		this.fenetreMain.setVisible(true);
-	}
 	
+	}
+
 	public void setLocalStatus (Status status){
 		controller.setLocalStatus(status);
 	}
 	public void launchChatWith(User user) {
 		controller.launchChatWith(user);
 	}
-	
+
 	public void login(String username) {
 		controller.setLocalUser(username);
 		initMain();
@@ -57,7 +61,7 @@ public class View implements Observer {
 	public User getLocalUser() {
 		return model.getLocalUser();
 	}
-	
+
 	public String getMessageFrom(User remoteUser) {
 		return controller.getMessageFrom(remoteUser);
 	}	
@@ -78,6 +82,10 @@ public class View implements Observer {
 		(new Thread( new FenetreMsg(remoteUser, this))).start();
 	}
 
+	public void printNotif (String txt){
+		this.fenetreMain.setNotif(txt);
+
+	}
 	public void sendText(User remoteUser, String newMsg) {
 		controller.sendText(remoteUser, newMsg);
 	}
