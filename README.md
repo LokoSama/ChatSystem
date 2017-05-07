@@ -3,11 +3,17 @@
 #TODO-LIST GLOBALE :
 
 [ ] handle le reste des paquets UDP, se rapprocher d'un run "classique" (pas juste 2 instances) (tu veux dire quoi ? tester avec plus de 2 instances ?)
+
 [ ] gérer la fermeture de fenêtreMsg : soit on envoie "fin de conversation" à son partenaire (et il faut recréer une conversation depuis le main pour reprendre), soit on laisse la conversation ouverte tant qu'il ne la ferme pas aussi de son côté (et il faut du coup faire repop la fenêtre s'il te reparle)
+
 [ ] gérer la fermeture de fenetreMain : envoyer DISCONNECT, gérer la fermeture des sockets
+
 [ ] gérer les multi-conversations
+
 [ ] intégrer l'envoi de fichiers à l'interface et le tester
+
 [ ] Revoir UDPListener.run() : la partie réception de Control a l'air de faire n'imp (notamment envoyer un port en dur)
+
 [ ] Revoir Controller.launchChatWithUser() : le port récupéré par negotiatePort n'est pas utilisé...
 
 
