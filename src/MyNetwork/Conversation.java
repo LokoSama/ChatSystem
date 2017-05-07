@@ -32,7 +32,6 @@ public class Conversation {
 			ObjectInputStream ois = new ObjectInputStream(sock.getInputStream());
 			this.listener = new ConversationListener(ois, this);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
