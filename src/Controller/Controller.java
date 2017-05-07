@@ -12,6 +12,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 import Fenetre.View;
 import Model.Model;
@@ -27,17 +29,18 @@ import Network.Packet.Packet;
 import Network.Packet.Text;
 
 
-
 public class Controller {
 	//attributes
 	//Modele
 	Model model;
 	View view ;
 	//UDP networking
+	private UDPListener UDPL;
 	private DatagramSocket UDPlisten; //UDP sockets for negotiating the TCP port to be used. UDPlisten always has port number LOCAL_LISTEN_PORT.
 	private DatagramSocket UDPtalk;
 	private int LOCAL_LISTEN_PORT = 2042;
 	private int REMOTE_LISTEN_PORT = 2042;
+
 	private boolean newACKPacket;
 	private Control newPacket;
 
@@ -61,17 +64,7 @@ public class Controller {
 		this.view = new View(this.model,this);
 		model.addObserver(view);
 
-		/*
-		Tempo(10000);
-		model.addUser("le nouveau", InetAddress.getLoopbackAddress(), Status.Busy); //permet de tester le pattern Observable Observer
-		Tempo(10000);
-		model.setStatus("le nouveau", InetAddress.getLoopbackAddress(), Status.Online);
-		Tempo(10000);
-		model.deleteUser("le nouveau", InetAddress.getLoopbackAddress());
-		Tempo(10000);*/
-
 		initNetwork();
-
 	}
 
 
@@ -79,8 +72,6 @@ public class Controller {
 		try {
 			Thread.sleep(time);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 	}
 
@@ -98,14 +89,14 @@ public class Controller {
 
 		convList = new HashMap<User,Conversation>();
 
-		UDPListener UDPL = new UDPListener(UDPlisten, this); //separate thread to listen to incoming UDP datagrams
+		this.UDPL = new UDPListener(UDPlisten, this); //separate thread to listen to incoming UDP datagrams
 		while (! model.userIsConnected())
 			try {
 				Thread.sleep(50);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
-		UDPL.start();
+		this.UDPL.start();
 	}
 
 	//Fonctions pour l'envoi par TCP
@@ -187,14 +178,9 @@ public class Controller {
 
 			try {
 				servSock = new ServerSocket(0);
-				int remotePort = this.negotiatePort(remoteUser, servSock.getLocalPort());
-				Debugger.log("launchChatWith : socket server waiting");
+				this.negotiatePort(remoteUser, servSock.getLocalPort()); //returns the port the other user will create a socket on ; not used, we can get the socket directly
+				Debugger.log("Controller.launchChatWith : establishing connection to " + remoteUser.getUsername());
 				sock = servSock.accept();
-
-				Debugger.log("Controller.launchChatWith: trying to negotiate port");
-
-				//InetSocketAddress remoteSocketAddr = new InetSocketAddress(remoteUser.getIP(), remotePort);
-				//sock.connect(remoteSocketAddr);
 
 				addConversation(remoteUser, sock); //creates a new Conversation + fenetreMsg
 			} catch (IOException e) {
@@ -219,7 +205,7 @@ public class Controller {
 
 		this.sendUDP(dest.getIP(), controlPacket);
 		Debugger.log("Controller.negotiatePort: HELLO sent, waiting for ACK");
-		
+
 		//wait for ACK
 		do {
 			while (this.newACKPacket == false) {
@@ -288,10 +274,27 @@ public class Controller {
 		return this.convList.get(remoteUser).getMessage();
 	}
 
+	public void closeFenetreMsg(User u) {
+		convList.get(u).close();
+		this.convList.remove(u);
+	}
 
 	public void closeSoft() {
+		Debugger.log("Closing ChatSystem");
 		this.broadcastNotification(Notification_type.DISCONNECT, null);
-		
+		this.closeAllConversations();
+		this.UDPlisten.close();
+		this.UDPtalk.close();
+		UDPL.interrupt();
+	}
+
+	private void closeAllConversations() {
+		Iterator<Map.Entry<User,Conversation>> it = convList.entrySet().iterator();
+		while (it.hasNext()) {
+			Map.Entry<User, Conversation> pair = (Map.Entry<User, Conversation>)it.next();
+			pair.getValue().close();
+			it.remove(); //avoids a ConcurrentModificationException
+		}
 	}
 
 }

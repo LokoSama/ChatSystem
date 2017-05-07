@@ -73,7 +73,6 @@ public class View implements Observer {
 	@Override
 	public void update(Observable obs, Object arg) {
 		if (obs instanceof Model){
-			System.out.println("MAJ user");
 			//JOptionPane.showMessageDialog(null, "nouveau user");
 			this.fenetreMain.updateUserList();
 		}
@@ -86,12 +85,20 @@ public class View implements Observer {
 	public void printNotif (String txt){
 		this.fenetreMain.setNotif(txt);
 
-
 	}
+	
 	public void sendText(User remoteUser, String newMsg) {
 		controller.sendText(remoteUser, newMsg);
 	}
+	
+	public void sendFile(User dest, String strPath) {
+		this.controller.sendFile(dest, strPath);
+	}
 
+	public void closeFenetreMsg(User u) {
+		controller.closeFenetreMsg(u);
+	}
+	
 	public void closeWindow() {
 		controller.closeSoft();
 	}

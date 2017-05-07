@@ -35,15 +35,13 @@ public class FenetreMain extends JFrame implements ActionListener,WindowListener
 	DefaultListModel<User> jlistModel;
 	private JButton bChat ; 
 	private JButton bStatus;
-	private JButton bSendFile;
 	private JTextArea textNotif;
 	private JTextArea textCurrentStatus;
-	private JTextArea textPath;
 	private JScrollPane scrollPaneNotif ; 
-	
-	
+
+
 	View view;
-	
+
 	//Constructor
 	public FenetreMain (View view) {
 		this.view = view;
@@ -54,35 +52,33 @@ public class FenetreMain extends JFrame implements ActionListener,WindowListener
 
 	private void createComponents () {
 		this.setTitle(view.getLocalUser().getUsername());
-		
+
 		//Buttons	
 		bChat= new JButton("Chat with");
 		bStatus = new JButton("Set new status");
-		bSendFile = new JButton("Send file to Path :");
 		//Listeners
 		bChat.addActionListener(this);
 		bStatus.addActionListener(this);
-		bSendFile.addActionListener(this);
 		//Panel
 		JPanel panel = new JPanel();
 
 		//TextArea 
 		textNotif  = new JTextArea(5,20);
-		textCurrentStatus = new JTextArea("Statut actuel :" + view.getLocalUser().getStatus().name(),5,20);
+		textNotif.setEditable(false);
+		textCurrentStatus = new JTextArea("Statut actuel : " + view.getLocalUser().getStatus().name(),5,20);
 		textCurrentStatus.setEditable(false);
-		textPath = new JTextArea(5,20);
-			
+
 		//Scroll
 		scrollPaneNotif = new JScrollPane(textNotif);
 		scrollPaneNotif.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-		scrollPaneNotif.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
-		
+		scrollPaneNotif.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+
 		//Randoms gens
 		//User[] data = {new User("name",InetAddress.getLocalHost(),Status.Online)};
 
 		//JList model (the content, modify this to modify the JList)
 		jlistModel = new DefaultListModel<User>();
-		
+
 		jlistMStatus = new DefaultListModel<Model.Status>();
 		jlistMStatus.addElement(Status.Online); 
 		jlistMStatus.addElement(Status.Busy); 
@@ -98,17 +94,15 @@ public class FenetreMain extends JFrame implements ActionListener,WindowListener
 		//Setup
 		//set
 		panel.setBorder(BorderFactory.createEmptyBorder(30,30,10,30));
-		panel.setLayout(new GridLayout(4,2));
+		panel.setLayout(new GridLayout(3,2));
 
 		//add
 		panel.add(jlistUsers);
 		panel.add(bStatus);
 		panel.add(bChat);
 		panel.add(jlistStatus);
-		panel.add(bSendFile);
-		panel.add(textCurrentStatus);
-		panel.add(textPath);
 		panel.add(scrollPaneNotif);
+		panel.add(textCurrentStatus);
 		this.add(panel);
 		addWindowListener(this);
 	}
@@ -119,84 +113,59 @@ public class FenetreMain extends JFrame implements ActionListener,WindowListener
 			jlistModel.addElement(userArrayList.get(i));
 		}
 	}
-	
+
 	public void updateUserList() {
 		jlistModel.clear();
 		this.initUserList(view.getUserList());
 	}
-	
+
 	public void setNotif(String txt){
 		this.textNotif.append(txt+"\n");
 	}
-	
-	
 
-	
+
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		Object source = e.getSource();
 		if (source == bChat){
-			JOptionPane.showMessageDialog(null, "Tentative de chat avec "+ jlistUsers.getSelectedValue());
-			view.launchChatWith(jlistUsers.getSelectedValue());
+			if (jlistUsers.getSelectedValue() != null) {
+				JOptionPane.showMessageDialog(null, "Tentative de chat avec "+ jlistUsers.getSelectedValue());
+				view.launchChatWith(jlistUsers.getSelectedValue());
+			}
 		}
 		if (source == bStatus){
 			Status select = jlistStatus.getSelectedValue();
-			JOptionPane.showMessageDialog(null, "Nouveau statut : "+ select);
-			textCurrentStatus.setText("Statut actuel : " + select.name());
-			this.view.setLocalStatus(select);
-		}
-		if (source == bSendFile){
-			
-			
+			if (select != null) {
+				JOptionPane.showMessageDialog(null, "Nouveau statut : "+ select);
+				textCurrentStatus.setText("Statut actuel : " + select.name());
+				this.view.setLocalStatus(select);
+			}
 		}
 	}
 
-	
-	@Override
-	public void windowClosed(WindowEvent arg0) {
-		
-		
-	}
 
 	@Override
-	public void windowActivated(WindowEvent e) {
-		
-	}
+	public void windowClosed(WindowEvent arg0) {}
+
+	@Override
+	public void windowActivated(WindowEvent e) {}
 
 	@Override
 	public void windowClosing(WindowEvent e) {
 		this.view.closeWindow();
-		
 	}
 
 	@Override
-	public void windowDeactivated(WindowEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
+	public void windowDeactivated(WindowEvent e) {}
 
 	@Override
-	public void windowDeiconified(WindowEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
+	public void windowDeiconified(WindowEvent e) {}
 
 	@Override
-	public void windowIconified(WindowEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
+	public void windowIconified(WindowEvent e) {}
 
 	@Override
-	public void windowOpened(WindowEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
-
-
-
-
-
+	public void windowOpened(WindowEvent e) {}
 
 
 }

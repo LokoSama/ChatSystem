@@ -55,7 +55,7 @@ public class Model extends Observable {
 		if (index > -1  && index < userList.size() ) {
 			return userList.get(index);
 	}
-		else return null; //si User pas trouvé 
+		else return null; //si User pas trouvï¿½ 
 	}
 	public void setLocalUser (String name)  {
 		this.localUser.setName(name);
@@ -124,14 +124,9 @@ public class Model extends Observable {
 			System.out.println("Fail delete User, index =" + index + "\n");
 		}
 		
-		
-		
-		
-		
 		boolean ret = userList.remove(new User(name, ip, Status.Busy));
 		setChanged();
 		notifyObservers();
-		System.out.println(ret);
 		return ret;
 	}
 
