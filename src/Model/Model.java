@@ -41,7 +41,22 @@ public class Model extends Observable {
 	public User getLocalUser() {
 		return localUser;
 	}
-
+	
+	public User getUser(String name, InetAddress ip) {
+		int index=0;
+		boolean find = false;
+		while (index < userList.size() && !find){
+			if (userList.get(index).getUsername() == name && userList.get(index).getIP() == ip ) {
+				find = true;
+			}
+			index ++;
+		}
+		index --;
+		if (index > -1  && index < userList.size() ) {
+			return userList.get(index);
+	}
+		else return null; //si User pas trouvé 
+	}
 	public void setLocalUser (String name)  {
 		this.localUser.setName(name);
 	}

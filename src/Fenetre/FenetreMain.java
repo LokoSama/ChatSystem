@@ -35,8 +35,10 @@ public class FenetreMain extends JFrame implements ActionListener,WindowListener
 	DefaultListModel<User> jlistModel;
 	private JButton bChat ; 
 	private JButton bStatus;
+	private JButton bSendFile;
 	private JTextArea textNotif;
 	private JTextArea textCurrentStatus;
+	private JTextArea textPath;
 	private JScrollPane scrollPaneNotif ; 
 	
 	
@@ -56,9 +58,11 @@ public class FenetreMain extends JFrame implements ActionListener,WindowListener
 		//Buttons	
 		bChat= new JButton("Chat with");
 		bStatus = new JButton("Set new status");
+		bSendFile = new JButton("Send file to Path :");
 		//Listeners
 		bChat.addActionListener(this);
 		bStatus.addActionListener(this);
+		bSendFile.addActionListener(this);
 		//Panel
 		JPanel panel = new JPanel();
 
@@ -66,6 +70,7 @@ public class FenetreMain extends JFrame implements ActionListener,WindowListener
 		textNotif  = new JTextArea(5,20);
 		textCurrentStatus = new JTextArea("Statut actuel :" + view.getLocalUser().getStatus().name(),5,20);
 		textCurrentStatus.setEditable(false);
+		textPath = new JTextArea(5,20);
 			
 		//Scroll
 		scrollPaneNotif = new JScrollPane(textNotif);
@@ -93,15 +98,17 @@ public class FenetreMain extends JFrame implements ActionListener,WindowListener
 		//Setup
 		//set
 		panel.setBorder(BorderFactory.createEmptyBorder(30,30,10,30));
-		panel.setLayout(new GridLayout(3,2));
+		panel.setLayout(new GridLayout(4,2));
 
 		//add
 		panel.add(jlistUsers);
 		panel.add(bStatus);
 		panel.add(bChat);
 		panel.add(jlistStatus);
-		panel.add(scrollPaneNotif);
+		panel.add(bSendFile);
 		panel.add(textCurrentStatus);
+		panel.add(textPath);
+		panel.add(scrollPaneNotif);
 		this.add(panel);
 		addWindowListener(this);
 	}
@@ -138,7 +145,10 @@ public class FenetreMain extends JFrame implements ActionListener,WindowListener
 			textCurrentStatus.setText("Statut actuel : " + select.name());
 			this.view.setLocalStatus(select);
 		}
-
+		if (source == bSendFile){
+			
+			
+		}
 	}
 
 	
