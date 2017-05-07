@@ -92,7 +92,8 @@ public class UDPListener extends Thread {
 						//TODO
 					}
 					else if (n.getType() == Notification_type.DISCONNECT){
-						//TODO
+						controller.getView().printNotif(n.getPseudoSource() + " s'est déconnecté(e)");
+						controller.getModel().deleteUser(n.getPseudoSource(),n.getAddrSource());
 					}
 					else {
 						System.out.println("ERROR in UDPListener.run(): received packet expected Notification has no legit Notification type");

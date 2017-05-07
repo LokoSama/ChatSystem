@@ -91,7 +91,13 @@ public class View implements Observer {
 	public void sendText(User remoteUser, String newMsg) {
 		controller.sendText(remoteUser, newMsg);
 	}
+
+	public void closeWindow() {
+		controller.closeSoft();
+	}
 }
+
+
 
 
 

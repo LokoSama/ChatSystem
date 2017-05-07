@@ -37,11 +37,11 @@ public class Model extends Observable {
 	public InetAddress getLocalIP() {
 		return localUser.getIP();
 	}
-	
+
 	public User getLocalUser() {
 		return localUser;
 	}
-	
+
 	public void setLocalUser (String name)  {
 		this.localUser.setName(name);
 	}
@@ -52,28 +52,27 @@ public class Model extends Observable {
 		notifyObservers();
 	}
 	public void setStatus(String name,InetAddress ip, Status status){
-		System.out.println("appel set status");
 		int index=0;
 		boolean find = false;
 		while (index < userList.size() && !find){
-		if (userList.get(index).getUsername() == name && userList.get(index).getIP() == ip ) {
-			find = true;
-		}
-		index ++;
+			if (userList.get(index).getUsername() == name && userList.get(index).getIP() == ip ) {
+				find = true;
+			}
+			index ++;
 		}
 		index --;
 		if (index > -1  && index < userList.size() ) {
-		userList.set(index,new User(name,ip,status));
-		setChanged();
-		notifyObservers();
+			userList.set(index,new User(name,ip,status));
+			setChanged();
+			notifyObservers();
 		}
 		else {
 			System.out.println("Fail set status, index =" + index + "\n");
 		}
-		}
-	
+	}
+
 	public Status statusFromString(String s) {
-		
+
 		if (s.equals("Online"))
 			return Status.Online;
 		else if (s.equals("Busy"))
@@ -83,7 +82,7 @@ public class Model extends Observable {
 		else
 			return Status.Offline;
 	}
-	
+
 	public boolean addUser(String name, InetAddress ip, Status status) {
 		boolean ret = userList.add(new User(name, ip, status));
 		setChanged();
@@ -92,6 +91,27 @@ public class Model extends Observable {
 	}
 
 	public boolean deleteUser(String name, InetAddress ip) {
+		int index=0;
+		boolean find = false;
+		while (index < userList.size() && !find){
+			if (userList.get(index).getUsername() == name && userList.get(index).getIP() == ip ) {
+				find = true;
+			}
+			index ++;
+		}
+		index --;
+		if (index > -1  && index < userList.size() ) {
+			userList.remove(index);
+			setChanged();
+			notifyObservers();
+		}
+		else {
+			System.out.println("Fail delete User, index =" + index + "\n");
+		}
+		
+		
+		
+		
 		
 		boolean ret = userList.remove(new User(name, ip, Status.Busy));
 		setChanged();
@@ -99,7 +119,7 @@ public class Model extends Observable {
 		System.out.println(ret);
 		return ret;
 	}
-	
+
 	public boolean userIsConnected() {
 		return connected;
 	}
@@ -107,7 +127,7 @@ public class Model extends Observable {
 	public void connectUser() {
 		connected = true;
 	}
-	
+
 	public void disconnectUser() {
 		connected = false;
 	}

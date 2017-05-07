@@ -2,6 +2,9 @@ package Fenetre;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.util.ArrayList;
 
 import javax.swing.BorderFactory;
@@ -23,7 +26,7 @@ import Model.User;
 
 @SuppressWarnings("serial")
 
-public class FenetreMain extends JFrame implements ActionListener {
+public class FenetreMain extends JFrame implements ActionListener,WindowListener {
 
 	//Attributs
 	private JList<User> jlistUsers ;
@@ -35,7 +38,8 @@ public class FenetreMain extends JFrame implements ActionListener {
 	private JTextArea textNotif;
 	private JTextArea textCurrentStatus;
 	private JScrollPane scrollPaneNotif ; 
-		
+	
+	
 	View view;
 	
 	//Constructor
@@ -99,7 +103,7 @@ public class FenetreMain extends JFrame implements ActionListener {
 		panel.add(scrollPaneNotif);
 		panel.add(textCurrentStatus);
 		this.add(panel);
-		
+		addWindowListener(this);
 	}
 
 	//populates the JList with the existing userArrayList
@@ -119,6 +123,8 @@ public class FenetreMain extends JFrame implements ActionListener {
 	}
 	
 	
+
+	
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		Object source = e.getSource();
@@ -134,5 +140,54 @@ public class FenetreMain extends JFrame implements ActionListener {
 		}
 
 	}
+
+	
+	@Override
+	public void windowClosed(WindowEvent arg0) {
+		
+		
+	}
+
+	@Override
+	public void windowActivated(WindowEvent e) {
+		
+	}
+
+	@Override
+	public void windowClosing(WindowEvent e) {
+		this.view.closeWindow();
+		
+	}
+
+	@Override
+	public void windowDeactivated(WindowEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void windowDeiconified(WindowEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void windowIconified(WindowEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void windowOpened(WindowEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+
+
+
+
+
 }
 

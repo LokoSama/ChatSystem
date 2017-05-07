@@ -288,4 +288,10 @@ public class Controller {
 		return this.convList.get(remoteUser).getMessage();
 	}
 
+
+	public void closeSoft() {
+		this.broadcastNotification(Notification_type.DISCONNECT, null);
+		
+	}
+
 }
