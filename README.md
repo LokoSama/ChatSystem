@@ -37,3 +37,8 @@ La découverte du réseau a l'air de marcher, les users se voient et peuvent cha
 
 Note : j'ai importé java.io.File pour gérer les fichiers, du coup pour utiliser la structure File de Alexis il faut utiliser Network.Packet.File
 
+-----------------------
+Loko; v1.2
+
+Gestion de la notif DISCONNECT : - à l'envoi : grâce à un WindowListener sur FenetreMain, on peut effectuer des actions lors de la fermeture (peut être utile pour le fermeture de socket)
+- à la réception : on deleteUser avec la même méthode que setStatus = parcours de liste dégueu 
