@@ -28,11 +28,11 @@ Ce projet a été codé et compilé sous l'IDE Eclipse.
 
 ## Run configurations
 
-Le main est Chat.java. Il peut avoir un argument :
+La méthode main se situe dans la classe Chat. Elle peut se lancer de plusieurs façons :
 
-- sans argument : le Chaysystem se lance avec un port UDP par défaut (2042)
-- 1 ou 2 : le Chatsystem se lance en configuration locale de manière à pouvoir tester sur un seul PC avec deux instances (argument 1 et 2).
-- autre, > 1023 : le Chatsystem se lance avec comme port UDP l'argument d'entrée
+- sans argument : le ChatSystem se lance avec un port de réception UDP par défaut (2042) et envoie sur ce même port
+- 1 ou 2 : le ChatSystem se lance en configuration locale de manière à pouvoir tester sur un seul PC avec deux instances (puisque impossible d'utiliser les mêmes ports). Il faut lancer le ChatSystem deux fois, une fois pour chaque argument, afin d'obtenir deux instances qui communiqueront entre elles.
+- autre, > 1023 : le Chatsystem se lance avec comme port UDP (de réception et d'envoi) l'argument d'entrée
 
 # Rapport de tests
 
