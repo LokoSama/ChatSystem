@@ -49,7 +49,7 @@ On peut retrouver ces tests dans notre classe ModelTest.java
 ## testDeleteUser
 
 - Auteurs : notre binôme
-- Principe : on ajoute un utilisateur (testé comme au dessus), on le supprimer et on vérifie la taille de la liste et l'absence de l'utilisateur de la liste
+- Principe : on ajoute un utilisateur (testé comme au dessus), on le supprime et on vérifie la taille de la liste et l'absence de l'utilisateur de la liste
 - Résultat : succès en 0.000s
 
 ## testSetStatus
