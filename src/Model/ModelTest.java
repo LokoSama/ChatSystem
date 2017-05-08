@@ -1,31 +1,30 @@
 package Model;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
-import org.junit.After;
-import org.junit.Before;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class ModelTest {
 
-	private Model model;
+	private static Model model;
 	
-	@Before
-	public void setUp() throws Exception {
-		
-		
+	@BeforeClass
+	public static void setUp() throws Exception {
+		model = new Model();
 	}
 
-	@After
-	public void tearDown() throws Exception {
+	@AfterClass
+	public static void tearDown() throws Exception {
+		
 	}
 
 	@Test
 	public void test() throws UnknownHostException {
-		Model model = new Model();
 		int old = model.getUserList().size();
 		User newUser = new User("Patrick", InetAddress.getLocalHost(), Status.Online);
 		

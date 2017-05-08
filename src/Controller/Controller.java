@@ -32,8 +32,8 @@ import Network.Packet.Text;
 public class Controller {
 	//attributes
 	//Modele
-	Model model;
-	View view ;
+	private Model model;
+	private View view ;
 	//UDP networking
 	private UDPListener UDPL;
 	private DatagramSocket UDPlisten; //UDP sockets for negotiating the TCP port to be used. UDPlisten always has port number LOCAL_LISTEN_PORT.

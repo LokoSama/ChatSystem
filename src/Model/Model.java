@@ -99,7 +99,10 @@ public class Model extends Observable {
 	}
 
 	public boolean addUser(String name, InetAddress ip, Status status) {
-		boolean ret = userList.add(new User(name, ip, status));
+		User u = new User(name, ip, status);
+		boolean ret = false;
+		if (!userList.contains(u))
+			ret = userList.add(u);
 		setChanged();
 		notifyObservers();
 		return ret;

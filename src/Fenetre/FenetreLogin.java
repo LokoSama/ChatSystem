@@ -11,8 +11,10 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JTextArea;
+import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+
+import Controller.Debugger;
 
 
 //Cette fenêtre est la fenêtre de login. implémentation d'un popup de connexion qui pourra servir au fail de co
@@ -24,7 +26,7 @@ public class FenetreLogin extends JFrame implements ActionListener {
 	//View
 	private View view ;
 	//Graphique
-	private JTextArea textPseudo ;
+	private JTextField textPseudo ;
 	private JButton bLogin ;
 	private JLabel lbUsername;
 	private JPanel panel ;
@@ -58,7 +60,9 @@ public class FenetreLogin extends JFrame implements ActionListener {
 		lbUsername = new JLabel("Username",SwingConstants.CENTER);
 
 		//TextArea 
-		textPseudo = new JTextArea(5,20);
+		textPseudo = new JTextField(20);
+
+		textPseudo.addActionListener(this);
 
 
 		//Setup
@@ -81,12 +85,14 @@ public class FenetreLogin extends JFrame implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		Object source = e.getSource();
-		if (source == bLogin){
-			String newUser= this.textPseudo.getText();
-			JOptionPane.showMessageDialog(null, "Login de "+ newUser);
-			this.textPseudo.setText("");
-			view.login(newUser);
-			this.setVisible(false);
+		if (source == bLogin | source == textPseudo){
+			String newUser = this.textPseudo.getText();
+			if (!newUser.equals("")) {
+				JOptionPane.showMessageDialog(null, "Login de "+ newUser);
+				this.textPseudo.setText("");
+				view.login(newUser);
+				this.setVisible(false);
+			}
 		}
 	}
 

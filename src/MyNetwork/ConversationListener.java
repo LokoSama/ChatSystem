@@ -51,18 +51,12 @@ public class ConversationListener extends Thread {
 
 	private void handlePacket(Object pack) {
 		Debugger.log("ConversationListener.handlePacket : receiving packet");
-		if (pack instanceof Control) {
-			Debugger.log("ConversationListener.handlePacket : received Control");
-			//TODO
-		} else if (pack instanceof File) {
-			Debugger.log("ConversationListener.handlePacket : received File");
-			//TODO
-		} else if (pack instanceof Notification) {
-			Debugger.log("ConversationListener.handlePacket : received Notification");
-			//TODO
-		} else if (pack instanceof Text) {
+		if (pack instanceof Text) {
 			Debugger.log("ConversationListener.handlePacket : received Text");
 			conv.addMessage(((Text)pack).getData());
+		} else if (pack instanceof Network.Packet.File) {
+			Debugger.log("ConversationListener.handlePacket : received File");
+			conv.addFile((Network.Packet.File)pack);
 		} else {
 			System.out.println("Error in ConversationListener.handlePacket : packet type unclear");
 		}
@@ -73,7 +67,6 @@ public class ConversationListener extends Thread {
 			input.close();
 			isRunning = false;
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}

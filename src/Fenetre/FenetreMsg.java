@@ -12,6 +12,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.JTextField;
 import javax.swing.ScrollPaneConstants;
 
 import Controller.Debugger;
@@ -55,7 +56,7 @@ public class FenetreMsg extends JFrame implements ActionListener, Runnable, Wind
 	private void createComponents() {
 		//Buttons	
 		bSend= new JButton("Send");
-		bSendFile = new JButton("Send file to Path :");
+		bSendFile = new JButton("Send file from path :");
 		//Listeners
 		bSend.addActionListener(this);
 		bSendFile.addActionListener(this);
@@ -64,10 +65,17 @@ public class FenetreMsg extends JFrame implements ActionListener, Runnable, Wind
 		filepath = new JTextArea(1,20);
 		textHist = new JTextArea(5,20); 
 		textHist.setEditable(false);
+		textSaisi.setLineWrap(true);
+		textHist.setLineWrap(true);
+		filepath.setLineWrap(true);
 		//Scrollbar
-		JScrollPane scroll = new JScrollPane(textHist);
-        scroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
-        scroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+		JScrollPane scrollHist = new JScrollPane(textHist);
+        scrollHist.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+        scrollHist.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        JScrollPane scrollSaisi = new JScrollPane(textSaisi);
+        scrollSaisi.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+        scrollSaisi.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        
 		//Panel
 		JPanel panel = new JPanel();
 
@@ -77,11 +85,11 @@ public class FenetreMsg extends JFrame implements ActionListener, Runnable, Wind
 		panel.setLayout(new GridLayout(5,1));
 
 		//add
-		panel.add(scroll);
-		panel.add(textSaisi);
+		panel.add(scrollHist);
+		panel.add(scrollSaisi);
 		panel.add(bSend);
-		panel.add(filepath);
 		panel.add(bSendFile);
+		panel.add(filepath);
 		this.add(panel);
 	}
 

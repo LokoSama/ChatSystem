@@ -37,12 +37,12 @@ public class User {
 	public void setName(String name) {
 		this.username = name;
 	}
-	
+
 	public void setStatus(Status status) {
 		this.status = status;
 	}
 
-		@Override
+	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
@@ -50,7 +50,7 @@ public class User {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		
+
 		User other = (User) obj;
 		if (IP == null) {
 			if (other.IP != null)
