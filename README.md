@@ -22,6 +22,7 @@ Ce projet a été codé et compilé sous l'IDE Eclipse.
 
 ## Fonctionnalités non implémentées
 
+- Mode invisible en utilisant le statut Offline
 - Envoi à multiples utilisateurs
 - Système de timeout d'un utilisateur via un envoi périodique de paquet ALIVE
 
