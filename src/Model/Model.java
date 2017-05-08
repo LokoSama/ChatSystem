@@ -24,9 +24,6 @@ public class Model extends Observable {
 			e.printStackTrace();
 		}
 		userList = new ArrayList<User>();
-		//userList.add(new User("Michel", InetAddress.getLoopbackAddress(), Status.Online));
-		//userList.add(new User("Emily", InetAddress.getLoopbackAddress(), Status.Away));
-		//userList.add(new User("Jean-Jacques", InetAddress.getLoopbackAddress(), Status.Busy));
 		connected = false;
 	}
 
@@ -41,20 +38,21 @@ public class Model extends Observable {
 	public User getLocalUser() {
 		return localUser;
 	}
-	
+
 	public User getUser(String name, InetAddress ip) {
 		int index=0;
 		boolean find = false;
+		User UserAux = new User(name,ip,Status.Online);
 		while (index < userList.size() && !find){
-			if (userList.get(index).getUsername() == name && userList.get(index).getIP() == ip ) {
+			if (userList.get(index).equals(UserAux) ) {
 				find = true;
 			}
 			index ++;
 		}
 		index --;
-		if (index > -1  && index < userList.size() ) {
+		if (find ) {
 			return userList.get(index);
-	}
+		}
 		else return null; //si User pas trouv� 
 	}
 	public void setLocalUser (String name)  {
@@ -69,15 +67,16 @@ public class Model extends Observable {
 	public void setStatus(String name,InetAddress ip, Status status){
 		int index=0;
 		boolean find = false;
+		User UserAux = new User(name,ip,status);
 		while (index < userList.size() && !find){
-			if (userList.get(index).getUsername() == name && userList.get(index).getIP() == ip ) {
+			if (userList.get(index).equals(UserAux)) {
 				find = true;
 			}
 			index ++;
 		}
 		index --;
-		if (index > -1  && index < userList.size() ) {
-			userList.set(index,new User(name,ip,status));
+		if (find ) {
+			userList.set(index,UserAux);
 			setChanged();
 			notifyObservers();
 		}
@@ -99,6 +98,7 @@ public class Model extends Observable {
 	}
 
 	public boolean addUser(String name, InetAddress ip, Status status) {
+
 		User u = new User(name, ip, status);
 		boolean ret = false;
 		if (!userList.contains(u))
@@ -111,26 +111,25 @@ public class Model extends Observable {
 	public boolean deleteUser(String name, InetAddress ip) {
 		int index=0;
 		boolean find = false;
+		User UserAux = new User (name,ip,Status.Offline);
 		while (index < userList.size() && !find){
-			if (userList.get(index).getUsername() == name && userList.get(index).getIP() == ip ) {
+			if (userList.get(index).equals(UserAux) ) {
 				find = true;
 			}
 			index ++;
 		}
 		index --;
-		if (index > -1  && index < userList.size() ) {
+		if (find ) {
 			userList.remove(index);
 			setChanged();
 			notifyObservers();
+			return true;
 		}
 		else {
 			System.out.println("Fail delete User, index =" + index + "\n");
+			return false;
 		}
-		
-		boolean ret = userList.remove(new User(name, ip, Status.Busy));
-		setChanged();
-		notifyObservers();
-		return ret;
+
 	}
 
 	public boolean userIsConnected() {
