@@ -1,11 +1,8 @@
 package Fenetre;
 
-
 import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
-
-import javax.swing.JOptionPane;
 
 import Controller.Controller;
 import Model.Model;
@@ -13,22 +10,19 @@ import Model.Status;
 import Model.User;
 import Network.Packet.Notification.Notification_type;
 
-//le début est OK :
-//TODO lorsque le listener des fenetres doit envoyer des choses, il appelle des fonctions du controller, le squelette de l algo se trouve ds le controller
 public class View implements Observer {
 
-	//attributs
+	//Attributes
 	private Controller controller;
 	private Model model;
+	private FenetreMain fenetreMain;
+	private FenetreLogin fenetreLog;
 
-	//attribut fen�tre
-	private FenetreMain fenetreMain; //n�cessaire pour propager l'information depuis Model
-
-	//Constructeur
+	//Constructor
 	public View (Model model,Controller controller) {
 		this.model = model;
 		this.controller = controller;
-		FenetreLogin fenetreLog = new FenetreLogin(this);
+		fenetreLog = new FenetreLogin(this);
 		fenetreLog.pack();
 		fenetreLog.setVisible(true);
 	}
@@ -39,36 +33,16 @@ public class View implements Observer {
 		this.fenetreMain = new FenetreMain(this);
 		this.fenetreMain.pack();
 		this.fenetreMain.setVisible(true);
-
 	}
 
-	public void setLocalStatus (Status status){
-		controller.setLocalStatus(status);
-	}
-	public void launchChatWith(User user) {
-		controller.launchChatWith(user);
+	public void launchFenetreMsg(User remoteUser) {
+		(new Thread( new FenetreMsg(remoteUser, this))).start();
 	}
 
-	public void login(String username) {
-		controller.setLocalUser(username);
-		initMain();
-		model.connectUser();
+	public void printNotif (String txt){
+		this.fenetreMain.setNotif(txt);
 	}
 
-	public ArrayList<User> getUserList() {
-		return model.getUserList();
-	}
-
-	public User getLocalUser() {
-		return model.getLocalUser();
-	}
-
-	public String getMessageFrom(User remoteUser) {
-		return controller.getMessageFrom(remoteUser);
-	}	
-	public static void main(String[] args) throws InterruptedException {
-
-	}
 
 	@Override
 	public void update(Observable obs, Object arg) {
@@ -78,33 +52,47 @@ public class View implements Observer {
 		}
 	}
 
-	public void launchFenetreMsg(User remoteUser) {
-		(new Thread( new FenetreMsg(remoteUser, this))).start();
+	//ACCESS TO CONTROLLER/MODEL METHODS
+	public void launchChatWith(User user) {
+		controller.launchChatWith(user);
 	}
 
-	public void printNotif (String txt){
-		this.fenetreMain.setNotif(txt);
-
+	public void setLocalStatus (Status status){
+		controller.setLocalStatus(status);
 	}
-	
+
 	public void sendText(User remoteUser, String newMsg) {
 		controller.sendText(remoteUser, newMsg);
 	}
-	
+
+	public void login(String username) {
+		controller.setLocalUser(username);
+		initMain();
+		model.connectUser();
+	}
+
 	public void sendFile(User dest, String strPath) {
 		this.controller.sendFile(dest, strPath);
 	}
+	
+	public User getLocalUser() {
+		return model.getLocalUser();
+	}
 
+	public String getMessageFrom(User remoteUser) {
+		return controller.getMessageFrom(remoteUser);
+	}
+
+	public ArrayList<User> getUserList() {
+		return model.getUserList();
+	}
+
+	//CLOSING METHODS
 	public void closeFenetreMsg(User u) {
 		controller.closeFenetreMsg(u);
 	}
-	
 	public void closeWindow() {
 		controller.closeSoft();
 	}
+
 }
-
-
-
-
-

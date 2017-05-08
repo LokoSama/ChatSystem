@@ -9,10 +9,10 @@ import java.net.InetAddress;
  */
 @SuppressWarnings("serial")
 public abstract class Packet implements Serializable {
-	protected String pseudoSource;
-	protected String pseudoDestination;
-	protected InetAddress addrSource;
 	protected InetAddress addrDestination;
+	protected InetAddress addrSource;
+	protected String pseudoDestination;
+	protected String pseudoSource;
 
 	public Packet(String pseudoSource, String pseudoDestination, InetAddress addrSource, InetAddress addrDestination) {
 		this.pseudoSource = pseudoSource;
@@ -21,36 +21,36 @@ public abstract class Packet implements Serializable {
 		this.addrDestination = addrDestination;
 	}
 
-	public String getPseudoSource() {
-		return pseudoSource;
-	}
-
-	public void setPseudoSource(String pseudoSource) {
-		this.pseudoSource = pseudoSource;
-	}
-
-	public String getPseudoDestination() {
-		return pseudoDestination;
-	}
-
-	public void setPseudoDestination(String pseudoDestination) {
-		this.pseudoDestination = pseudoDestination;
+	public InetAddress getAddrDestination() {
+		return addrDestination;
 	}
 
 	public InetAddress getAddrSource() {
 		return addrSource;
 	}
 
-	public void setAddrSource(InetAddress addrSource) {
-		this.addrSource = addrSource;
+	public String getPseudoDestination() {
+		return pseudoDestination;
 	}
 
-	public InetAddress getAddrDestination() {
-		return addrDestination;
+	public String getPseudoSource() {
+		return pseudoSource;
 	}
 
 	public void setAddrDestination(InetAddress addrDestination) {
 		this.addrDestination = addrDestination;
+	}
+
+	public void setAddrSource(InetAddress addrSource) {
+		this.addrSource = addrSource;
+	}
+
+	public void setPseudoDestination(String pseudoDestination) {
+		this.pseudoDestination = pseudoDestination;
+	}
+
+	public void setPseudoSource(String pseudoSource) {
+		this.pseudoSource = pseudoSource;
 	}
 }
 

@@ -9,12 +9,12 @@ import java.net.InetAddress;
 public class Control extends Packet {
 
 	public enum Control_t {
-		HELLO,
-		ACK
+		ACK,
+		HELLO
 	}
 
-	private Control_t type;
 	private int data;
+	private Control_t type;
 
 	public Control(String pseudoSource, String pseudoDestination, InetAddress addrSource, InetAddress addrDestination, Control_t type, int data) {
 		super(pseudoSource, pseudoDestination, addrSource, addrDestination);

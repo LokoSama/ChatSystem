@@ -6,8 +6,8 @@ import java.net.SocketException;
 import java.util.Enumeration;
 
 public class Tools {
+	
 	public static InetAddress getBroadcastAddress() {
-		String ip;
 		try {
 			Enumeration<java.net.NetworkInterface> interfaces = java.net.NetworkInterface.getNetworkInterfaces();
 			while (interfaces.hasMoreElements()) {
@@ -22,14 +22,11 @@ public class Tools {
 						continue;
 					return bcast;
 				}
-
 			}
 		} catch (SocketException e) {
 			throw new RuntimeException(e);
 		}
-
 		return null;
 	}
-	
-	
+
 }

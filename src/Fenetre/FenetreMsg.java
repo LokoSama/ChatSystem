@@ -12,7 +12,6 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
-import javax.swing.JTextField;
 import javax.swing.ScrollPaneConstants;
 
 import Controller.Debugger;
@@ -21,14 +20,14 @@ import Model.User;
 @SuppressWarnings("serial")
 public class FenetreMsg extends JFrame implements ActionListener, Runnable, WindowListener {
 
-	private JTextArea textHist ;
-	private JTextArea textSaisi ;
-	private JTextArea filepath;
 	private JButton bSend ;
 	private JButton bSendFile;
+	private JTextArea filepath;
 	private JPanel panel ;
-	private View view;
 	private User remoteUser;
+	private JTextArea textHist ;
+	private JTextArea textSaisi ;
+	private View view;
 
 	public FenetreMsg (User remoteUser, View view) { 
 		this.remoteUser = remoteUser;
@@ -42,6 +41,19 @@ public class FenetreMsg extends JFrame implements ActionListener, Runnable, Wind
 		addWindowListener(this);
 	}
 
+	public void actionPerformed(ActionEvent e) {
+		Object source = e.getSource();
+		if (source == bSend) {
+			String newMsg= this.textSaisi.getText();
+			this.textHist.append(view.getLocalUser().getUsername() + ": " + newMsg + "\n");
+			this.textSaisi.setText("");
+			view.sendText(remoteUser, newMsg);
+		} else if (source == bSendFile) {
+			view.sendFile(remoteUser, filepath.getText());
+			this.filepath.setText("");
+		}
+	}
+
 	@Override
 	//Here goes the code executed in each thread
 	public void run() {
@@ -52,6 +64,8 @@ public class FenetreMsg extends JFrame implements ActionListener, Runnable, Wind
 			this.textHist.append(this.remoteUser.getUsername() + ": " + msg + "\n");
 		}
 	}
+
+
 
 	private void createComponents() {
 		//Buttons	
@@ -77,7 +91,7 @@ public class FenetreMsg extends JFrame implements ActionListener, Runnable, Wind
         scrollSaisi.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         
 		//Panel
-		JPanel panel = new JPanel();
+		panel = new JPanel();
 
 		//Setup
 		//set
@@ -93,29 +107,17 @@ public class FenetreMsg extends JFrame implements ActionListener, Runnable, Wind
 		this.add(panel);
 	}
 
-	public void actionPerformed(ActionEvent e) {
-		Object source = e.getSource();
-		if (source == bSend) {
-			String newMsg= this.textSaisi.getText();
-			this.textHist.append(view.getLocalUser().getUsername() + ": " + newMsg + "\n");
-			this.textSaisi.setText("");
-			view.sendText(remoteUser, newMsg);
-		} else if (source == bSendFile) {
-			view.sendFile(remoteUser, filepath.getText());
-			this.filepath.setText("");
-		}
+	//WindowListener functions to override : we only care about windowClosing
+	@Override
+	public void windowClosing(WindowEvent e) {
+		this.view.closeFenetreMsg(remoteUser);
 	}
-
+	
 	@Override
 	public void windowActivated(WindowEvent e) {}
 
 	@Override
 	public void windowClosed(WindowEvent e) {}
-
-	@Override
-	public void windowClosing(WindowEvent e) {
-		this.view.closeFenetreMsg(remoteUser);
-	}
 
 	@Override
 	public void windowDeactivated(WindowEvent e) {}
@@ -128,6 +130,4 @@ public class FenetreMsg extends JFrame implements ActionListener, Runnable, Wind
 
 	@Override
 	public void windowOpened(WindowEvent e) {}
-
-
 }

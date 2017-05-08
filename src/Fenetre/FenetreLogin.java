@@ -14,56 +14,43 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
-import Controller.Debugger;
 
-
-//Cette fenêtre est la fenêtre de login. implémentation d'un popup de connexion qui pourra servir au fail de co
+//Login window
 
 @SuppressWarnings("serial")
 public class FenetreLogin extends JFrame implements ActionListener {
-	//Attributs
 
-	//View
-	private View view ;
-	//Graphique
-	private JTextField textPseudo ;
+	//Attributs
 	private JButton bLogin ;
 	private JLabel lbUsername;
 	private JPanel panel ;
-	//Tests
-	private String Pseudo;
+	private JTextField textPseudo ;
 
-	//Constructeur
+	private View view ;
+
+	//Constructor
 	public FenetreLogin (View view) { 
 		this.view = view ;
 		this.createComponents();
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);		
-
-	}
-
-	public String getPseudo() {
-		return Pseudo;	
 	}
 
 	private void createComponents () {
-
 		//Buttons	
 		bLogin= new JButton("Login");
-
-		//Listeners
-		bLogin.addActionListener(this);
-
-		//Panel
-		JPanel panel = new JPanel();
-
-		//Labels
-		lbUsername = new JLabel("Username",SwingConstants.CENTER);
 
 		//TextArea 
 		textPseudo = new JTextField(20);
 
-		textPseudo.addActionListener(this);
+		//Panel
+		panel = new JPanel();
 
+		//Labels
+		lbUsername = new JLabel("Username",SwingConstants.CENTER);
+
+		//Listeners
+		bLogin.addActionListener(this);
+		textPseudo.addActionListener(this);
 
 		//Setup
 		//set
@@ -75,11 +62,6 @@ public class FenetreLogin extends JFrame implements ActionListener {
 		panel.add(textPseudo);
 		panel.add(bLogin);
 		this.add(panel);
-	}
-
-	public void close() {
-		this.setVisible(false);
-
 	}
 
 	@Override
@@ -96,6 +78,7 @@ public class FenetreLogin extends JFrame implements ActionListener {
 		}
 	}
 
-
-
+	public void close() {
+		this.setVisible(false);
+	}
 }

@@ -7,10 +7,10 @@ import java.net.InetAddress;
  */
 @SuppressWarnings({"serial", "unused"})
 public class File extends Message {
+	private byte[] content;
 	private String fileName;
 	private String mimeType;
 	private double size;
-	private byte[] content;
 
 	public File(String pseudoSource, String pseudoDestination, InetAddress addrSource,
 			InetAddress addrDestination, String fileName, String mimeType, double size, byte[] content) {
@@ -22,19 +22,15 @@ public class File extends Message {
 		this.content = content;
 	}
 	
+	public byte[] getContent() {
+		return content;
+	}
+
 	public String getFileName() {
 		return fileName;
 	}
 
-	public String getMimeType() {
-		return mimeType;
-	}
-
 	public double getSize() {
 		return size;
-	}
-
-	public byte[] getContent() {
-		return content;
 	}
 }

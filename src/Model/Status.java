@@ -1,10 +1,10 @@
 package Model;
 
 public enum Status {
-	Online,
-	Busy,
 	Away,
-	Offline;
+	Busy,
+	Offline,
+	Online;
 
 	public String toString() {
 		if (this == Online)
@@ -16,6 +16,5 @@ public enum Status {
 		else
 			return "Offline";
 	}
-	
 	
 }

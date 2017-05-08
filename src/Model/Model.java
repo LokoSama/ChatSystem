@@ -10,10 +10,10 @@ import java.util.Observable;
 
 public class Model extends Observable {
 
+	private boolean connected ;
 	//Attributes
 	private User localUser;
 	private ArrayList<User> userList;
-	private boolean connected ;
 
 	//Methods
 	public Model () {
@@ -30,10 +30,48 @@ public class Model extends Observable {
 		connected = false;
 	}
 
-	public ArrayList<User> getUserList() {
-		return userList;
+	public boolean addUser(String name, InetAddress ip, Status status) {
+		User u = new User(name, ip, status);
+		boolean ret = false;
+		if (!userList.contains(u))
+			ret = userList.add(u);
+		setChanged();
+		notifyObservers();
+		return ret;
 	}
 
+	public void connectUser() {
+		connected = true;
+	}
+
+	public boolean deleteUser(String name, InetAddress ip) {
+		int index=0;
+		boolean find = false;
+		while (index < userList.size() && !find){
+			if (userList.get(index).getUsername() == name && userList.get(index).getIP() == ip ) {
+				find = true;
+			}
+			index ++;
+		}
+		index --;
+		if (index > -1  && index < userList.size() ) {
+			userList.remove(index);
+			setChanged();
+			notifyObservers();
+		}
+		else {
+			System.out.println("Fail delete User, index =" + index + "\n");
+		}
+		
+		boolean ret = userList.remove(new User(name, ip, Status.Busy));
+		setChanged();
+		notifyObservers();
+		return ret;
+	}
+	
+	public void disconnectUser() {
+		connected = false;
+	}
 	public InetAddress getLocalIP() {
 		return localUser.getIP();
 	}
@@ -41,7 +79,6 @@ public class Model extends Observable {
 	public User getLocalUser() {
 		return localUser;
 	}
-	
 	public User getUser(String name, InetAddress ip) {
 		int index=0;
 		boolean find = false;
@@ -57,8 +94,9 @@ public class Model extends Observable {
 	}
 		else return null; //si User pas trouv� 
 	}
-	public void setLocalUser (String name)  {
-		this.localUser.setName(name);
+
+	public ArrayList<User> getUserList() {
+		return userList;
 	}
 
 	public void setLocalStatus(Status status){
@@ -66,6 +104,11 @@ public class Model extends Observable {
 		setChanged();
 		notifyObservers();
 	}
+
+	public void setLocalUser (String name)  {
+		this.localUser.setName(name);
+	}
+
 	public void setStatus(String name,InetAddress ip, Status status){
 		int index=0;
 		boolean find = false;
@@ -98,51 +141,8 @@ public class Model extends Observable {
 			return Status.Offline;
 	}
 
-	public boolean addUser(String name, InetAddress ip, Status status) {
-		User u = new User(name, ip, status);
-		boolean ret = false;
-		if (!userList.contains(u))
-			ret = userList.add(u);
-		setChanged();
-		notifyObservers();
-		return ret;
-	}
-
-	public boolean deleteUser(String name, InetAddress ip) {
-		int index=0;
-		boolean find = false;
-		while (index < userList.size() && !find){
-			if (userList.get(index).getUsername() == name && userList.get(index).getIP() == ip ) {
-				find = true;
-			}
-			index ++;
-		}
-		index --;
-		if (index > -1  && index < userList.size() ) {
-			userList.remove(index);
-			setChanged();
-			notifyObservers();
-		}
-		else {
-			System.out.println("Fail delete User, index =" + index + "\n");
-		}
-		
-		boolean ret = userList.remove(new User(name, ip, Status.Busy));
-		setChanged();
-		notifyObservers();
-		return ret;
-	}
-
 	public boolean userIsConnected() {
 		return connected;
-	}
-
-	public void connectUser() {
-		connected = true;
-	}
-
-	public void disconnectUser() {
-		connected = false;
 	}
 
 }

@@ -2,7 +2,6 @@ package Fenetre;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.util.ArrayList;
@@ -19,7 +18,6 @@ import javax.swing.JTextArea;
 import javax.swing.ListSelectionModel;
 import javax.swing.ScrollPaneConstants;
 
-import Controller.Debugger;
 import Model.Status;
 import Model.User;
 
@@ -28,26 +26,62 @@ import Model.User;
 
 public class FenetreMain extends JFrame implements ActionListener,WindowListener {
 
-	//Attributs
-	private JList<User> jlistUsers ;
-	private JList<Model.Status> jlistStatus;
-	DefaultListModel<Model.Status> jlistMStatus ;
-	DefaultListModel<User> jlistModel;
-	private JButton bChat ; 
+	//Interface
+	private JButton bChat ;
 	private JButton bStatus;
-	private JTextArea textNotif;
-	private JTextArea textCurrentStatus;
+	
+	//Model
+	private JList<Model.Status> jlistStatus;
+	private JList<User> jlistUsers ;
 	private JScrollPane scrollPaneNotif ; 
+	private JTextArea textCurrentStatus;
+	private JTextArea textNotif;
+	private DefaultListModel<User> jlistModel;
+	private DefaultListModel<Model.Status> jlistMStatus ; 
 
-
-	View view;
+	private View view;
 
 	//Constructor
 	public FenetreMain (View view) {
 		this.view = view;
 		this.createComponents() ;
-		this.initUserList(view.getUserList()); //init de la User List
+		this.initUserList(view.getUserList()); //user list init
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		Object source = e.getSource();
+		if (source == bChat){
+			if (jlistUsers.getSelectedValue() != null) {
+				JOptionPane.showMessageDialog(null, "Tentative de chat avec "+ jlistUsers.getSelectedValue());
+				view.launchChatWith(jlistUsers.getSelectedValue());
+			}
+		}
+		if (source == bStatus){
+			Status select = jlistStatus.getSelectedValue();
+			if (select != null) {
+				JOptionPane.showMessageDialog(null, "Nouveau statut : "+ select);
+				textCurrentStatus.setText("Statut actuel : " + select.name());
+				this.view.setLocalStatus(select);
+			}
+		}
+	}
+
+	//populates the JList with the existing userArrayList
+	public void initUserList(ArrayList<User> userArrayList) {
+		for (int i = 0; i < userArrayList.size(); i++) {
+			jlistModel.addElement(userArrayList.get(i));
+		}
+	}
+
+	public void setNotif(String txt){
+		this.textNotif.append(txt+"\n");
+	}
+
+	public void updateUserList() {
+		jlistModel.clear();
+		this.initUserList(view.getUserList());
 	}
 
 	private void createComponents () {
@@ -59,6 +93,7 @@ public class FenetreMain extends JFrame implements ActionListener,WindowListener
 		//Listeners
 		bChat.addActionListener(this);
 		bStatus.addActionListener(this);
+		
 		//Panel
 		JPanel panel = new JPanel();
 
@@ -72,9 +107,6 @@ public class FenetreMain extends JFrame implements ActionListener,WindowListener
 		scrollPaneNotif = new JScrollPane(textNotif);
 		scrollPaneNotif.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 		scrollPaneNotif.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-
-		//Randoms gens
-		//User[] data = {new User("name",InetAddress.getLocalHost(),Status.Online)};
 
 		//JList model (the content, modify this to modify the JList)
 		jlistModel = new DefaultListModel<User>();
@@ -107,53 +139,17 @@ public class FenetreMain extends JFrame implements ActionListener,WindowListener
 		addWindowListener(this);
 	}
 
-	//populates the JList with the existing userArrayList
-	public void initUserList(ArrayList<User> userArrayList) {
-		for (int i = 0; i < userArrayList.size(); i++) {
-			jlistModel.addElement(userArrayList.get(i));
-		}
-	}
-
-	public void updateUserList() {
-		jlistModel.clear();
-		this.initUserList(view.getUserList());
-	}
-
-	public void setNotif(String txt){
-		this.textNotif.append(txt+"\n");
-	}
-
-
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		Object source = e.getSource();
-		if (source == bChat){
-			if (jlistUsers.getSelectedValue() != null) {
-				JOptionPane.showMessageDialog(null, "Tentative de chat avec "+ jlistUsers.getSelectedValue());
-				view.launchChatWith(jlistUsers.getSelectedValue());
-			}
-		}
-		if (source == bStatus){
-			Status select = jlistStatus.getSelectedValue();
-			if (select != null) {
-				JOptionPane.showMessageDialog(null, "Nouveau statut : "+ select);
-				textCurrentStatus.setText("Statut actuel : " + select.name());
-				this.view.setLocalStatus(select);
-			}
-		}
-	}
-
-
-	@Override
-	public void windowClosed(WindowEvent arg0) {}
-
-	@Override
-	public void windowActivated(WindowEvent e) {}
-
+	//WindowListener functions to override : we only care about windowClosing
 	@Override
 	public void windowClosing(WindowEvent e) {
 		this.view.closeWindow();
 	}
+	
+	@Override
+	public void windowActivated(WindowEvent e) {}
+
+	@Override
+	public void windowClosed(WindowEvent arg0) {}
 
 	@Override
 	public void windowDeactivated(WindowEvent e) {}
@@ -166,7 +162,6 @@ public class FenetreMain extends JFrame implements ActionListener,WindowListener
 
 	@Override
 	public void windowOpened(WindowEvent e) {}
-
 
 }
 

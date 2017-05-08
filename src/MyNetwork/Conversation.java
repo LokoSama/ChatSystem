@@ -15,21 +15,19 @@ import Network.Packet.Packet;
 public class Conversation {
 
 	//Attributes
-	private Socket sock;
-	private Controller controller;
-
 	private ConversationListener listener;
 	private ObjectOutputStream output;
+	private Socket sock;
 
-	private ArrayList<String> unreadMessages;
 	private ArrayList<Network.Packet.File> unopenedFiles;
+	private ArrayList<String> unreadMessages;
 
 	private final String workDir = System.getProperty("user.dir") + File.separator;
 
-	public Conversation (Socket sock, Controller controller) {
+	
+	public Conversation (Socket sock) {
 		Debugger.log("Conversation : constructing");
 		this.sock = sock;
-		this.controller = controller;
 		this.unreadMessages = new ArrayList<String>();
 		this.unopenedFiles = new ArrayList<Network.Packet.File>();
 
@@ -45,40 +43,38 @@ public class Conversation {
 		listener.start();
 	}
 
-	public void send(Packet pack) {
-		try {
-			output.writeObject(pack);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+	public void addFile(Network.Packet.File pack) {
+		this.unopenedFiles.add(pack);
 	}
 
 	public void addMessage(String message) {
 		this.unreadMessages.add(message);
 	}
 
+	//main function : handles incoming packets
 	public String getMessage() {
 		FileOutputStream fos;
 		String msg;
 		String convDir;
 
 		while(this.unreadMessages.isEmpty() && this.unopenedFiles.isEmpty()) {
-			Controller.Tempo(30);
+			Controller.shortWait();
 		} //wait for an incoming message or file
 
-		//means we have a file to open : it also means messages have higher priority
-		//than files (it only writes files when there are no messages)
+		//if there are no unreadMessages, it means we have a file to open : thus messages have higher priority than files (we only read files if there are no messages to be read)
 		if (this.unreadMessages.isEmpty()) {
 			Network.Packet.File incFile = this.unopenedFiles.get(0);
 			this.unopenedFiles.remove(0);
 
-			convDir = workDir + "from" + incFile.getPseudoSource() + File.separator;
+			convDir = workDir + "from" + incFile.getPseudoSource() + File.separator; //received files are written to where the program is executed
 			File f = new File(convDir + incFile.getFileName());
+			
 			long i = 0;
 			while (f.exists() || f.isDirectory()) {
 				i++;
 				f = new File(convDir + "(" + i + ")" + incFile.getFileName());
 			}
+			
 			Debugger.log("Final filepath: " + f.getAbsolutePath());
 			//creates the necessary directories if needed
 			(new File(convDir)).mkdirs();
@@ -91,7 +87,7 @@ public class Conversation {
 				e.printStackTrace();
 			}
 
-			msg = "Sent file " + incFile.getFileName() + printSize(incFile.getSize());
+			msg = "Sent file " + incFile.getFileName() + printSize(incFile.getSize()); //we print something either way
 		} else { //handle a text message
 			msg = this.unreadMessages.get(0);
 			this.unreadMessages.remove(0);
@@ -99,6 +95,26 @@ public class Conversation {
 		return msg;
 	}
 
+	public void send(Packet pack) {
+		try {
+			output.writeObject(pack);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void close() {
+		try {
+			Debugger.log("Closing conversation");
+			listener.close();
+			output.close();
+			sock.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	//this function returns a string containing the given size (in bytes) in a human readable format
 	private String printSize(double byteSize) {
 		String unit = "B";
 		double factor = 1;
@@ -117,26 +133,10 @@ public class Conversation {
 				}
 			}
 		}
-
 		double newSize = Math.round(byteSize * 100 / factor);
 		newSize /= 100;
 
 		return " (" + newSize + unit + ")";
-	}
-
-	public void close() {
-		try {
-			Debugger.log("Closing conversation");
-			listener.close();
-			output.close();
-			sock.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-
-	public void addFile(Network.Packet.File pack) {
-		this.unopenedFiles.add(pack);
 	}
 
 }

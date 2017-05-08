@@ -21,12 +21,17 @@ import Network.Packet.Packet;
 public class UDPListener extends Thread {
 
 	//Attributes
-	DatagramSocket UDPlisten;
 	Controller controller;
+	DatagramSocket UDPlisten;
+	static boolean running = true;
 
 	public UDPListener(DatagramSocket UDPlisten, Controller controller) {
 		this.UDPlisten = UDPlisten;
 		this.controller = controller;
+	}
+
+	public static void close() {
+		running = false;
 	}
 
 	public void run() {
@@ -34,93 +39,96 @@ public class UDPListener extends Thread {
 		DatagramPacket packet = new DatagramPacket(buf, buf.length);
 		Packet pack;
 
-		while (true) {
+		while (running) {
 			try{
-				while (!Thread.currentThread().isInterrupted()) {
-					Debugger.log("UDPListener : waiting for packet");
-					try {
-						UDPlisten.receive(packet);
-						ByteArrayInputStream byteIS = new ByteArrayInputStream(packet.getData());
-						ObjectInputStream objectIS = new ObjectInputStream(byteIS);
-						pack = (Packet)objectIS.readObject();
-					} catch (SocketException e) {
-						pack = null;
+				Debugger.log("UDPListener : waiting for packet");
+				pack = getIncomingPacket(packet); //blocking
+
+				if (pack == null) {
+					//We ran into a SocketException at getIncomingPacket
+				}
+				else if (pack instanceof Control) {
+					handleControl(pack);
+				} else if (pack instanceof Notification) {
+					Notification n = (Notification) pack;
+					Debugger.log("UDPListener : Received " + n.getType() + " from " + n.getPseudoSource());
+
+					if (n.getType() == Notification_type.CONNECT)
+					{
+						//add the user to the list
+						controller.printNotif(n.getPseudoSource() + " s'est connecté(e)");
+						controller.addUser(n.getPseudoSource(),n.getAddrSource(), Status.Online);
+						//Send ACK_CONNECT back so the remote user knows us and send STATUS_CHANGE so he can set our status
+						User tmpDest = new User(n.getPseudoSource(),n.getAddrSource(), Status.Online);
+						controller.sendNotif(tmpDest, Notification_type.ACK_CONNECT, "");
+						controller.sendNotif(tmpDest, Notification_type.STATUS_CHANGE, controller.getLocalUser().getStatus().toString());
 					}
-
-
-					if (pack instanceof Control) {
-						Control c = (Control) pack;
-						Debugger.log("UDPListener : Received " + c.getType() + " from " + c.getPseudoSource());
-
-						if (c.getType() == Control.Control_t.HELLO) {
-							User remoteUser = controller.getModel().getUser(c.getPseudoSource(), c.getAddrSource());
-							Socket sock = new Socket();
-							sock.bind(new InetSocketAddress(controller.getModel().getLocalUser().getIP(), 0));
-							controller.sendControl(remoteUser, Control.Control_t.ACK, sock.getLocalPort()); //send ACK back with local port number (over UDP)
-							//sock = new Socket(c.getAddrSource(), c.getData());
-							sock.connect(new InetSocketAddress(c.getAddrSource(), c.getData()));
-
-							controller.addConversation(remoteUser, sock); //add conversation
-							Debugger.log("UDPListener : Conversation added");
-
-						} else if (c.getType() == Control.Control_t.ACK) {
-							controller.ACKPacketreceived(c);
-						} else {
-							System.out.println("ERROR in UDPListener.run(): received Control is neither HELLO nor ACK");
-						}
-					} else if (pack instanceof Notification) {
-						Notification n = (Notification) pack;
-						Debugger.log("UDPListener : Received " + n.getType() + " from " + n.getPseudoSource());
-
-						if (n.getType() == Notification_type.CONNECT)
-						{
-							//On ajoute l'user à la liste
-							controller.getView().printNotif(n.getPseudoSource() + " s'est connecté(e)");
-							controller.getModel().addUser(n.getPseudoSource(),n.getAddrSource(), Status.Online);
-							//On renvoie ACK_CONNECT pour se faire connaitre, et on envoie son propre statut
-							User tmpDest = new User(n.getPseudoSource(),n.getAddrSource(), Status.Online);
-							controller.sendNotif(tmpDest, Notification_type.ACK_CONNECT, "");
-							controller.sendNotif(tmpDest, Notification_type.STATUS_CHANGE, controller.getModel().getLocalUser().getStatus().toString());
-						}
-						else if (n.getType() == Notification_type.ACK_CONNECT) {
-							//cette ligne fait doublon si on considère que les autres users enverront forcément un ACK_CONNECT + un STATUS_CHANGE pour nous informer de leur statut
-							//puisque ça affichera un message plus détaillé
-							//controller.getView().printNotif(n.getPseudoSource() + " est en ligne");
-							Debugger.log("About to add the following user : \n- NAME : " + n.getPseudoSource() + "\n- IP : " + n.getAddrSource());
-							controller.getModel().addUser(n.getPseudoSource(), n.getAddrSource(), Status.Online);
-						}
-						else if(n.getType() == Notification_type.STATUS_CHANGE) {
-							Status newStatus = controller.getModel().statusFromString(n.getData());
-							controller.getView().printNotif(n.getPseudoSource() + " est " + newStatus);
-							controller.getModel().setStatus(n.getPseudoSource(), n.getAddrSource(), newStatus);
-						}
-						else if (n.getType() == Notification_type.ACK) {
-							//TODO
-						}
-						else if (n.getType() == Notification_type.MISC) {
-							//TODO
-						}
-						else if (n.getType() == Notification_type.ALIVE) {
-							//TODO
-						}
-						else if (n.getType() == Notification_type.DISCONNECT){
-							controller.getView().printNotif(n.getPseudoSource() + " s'est d�connect�(e)");
-							controller.getModel().deleteUser(n.getPseudoSource(),n.getAddrSource());
-						}
-						else {
-							System.out.println("ERROR in UDPListener.run(): received packet expected Notification has no legit Notification type");
-						}
-					} else if (pack == null) {
-
-					} else {
-						System.out.println("ERROR in UDPListener.run(): received packet is not Control");
+					else if (n.getType() == Notification_type.ACK_CONNECT) {
+						controller.addUser(n.getPseudoSource(), n.getAddrSource(), Status.Online);
 					}
+					else if(n.getType() == Notification_type.STATUS_CHANGE) {
+						Status newStatus = controller.statusFromString(n.getData());
+						controller.printNotif(n.getPseudoSource() + " est " + newStatus);
+						controller.setStatus(n.getPseudoSource(), n.getAddrSource(), newStatus);
+					}
+					else if (n.getType() == Notification_type.MISC) {
+						//Supposedly used for any kind of notification, like poking; not implemented and thus ignored
+					}
+					else if (n.getType() == Notification_type.ACK) {
+						//N/A : we only need ACK_CONNECT
+					}
+					else if (n.getType() == Notification_type.ALIVE) {
+						//Not implemented
+					}
+					else if (n.getType() == Notification_type.DISCONNECT){
+						controller.printNotif(n.getPseudoSource() + " s'est déconnecté(e)");
+						controller.deleteUser(n.getPseudoSource(),n.getAddrSource());
+					}
+					else {
+						System.out.println("ERROR in UDPListener.run(): received packet has no legitimate Notification type");
+					}
+				} else {
+					System.out.println("ERROR in UDPListener.run(): received packet is neither Control nor Notification");
 				}
 			}
 			catch (IOException | ClassNotFoundException e) {
-				//TODO
 				e.printStackTrace();
 			}
+		}
+	}
+
+	private Packet getIncomingPacket(DatagramPacket packet) throws IOException, ClassNotFoundException {
+		Packet pack;
+		try {
+			UDPlisten.receive(packet);
+			ByteArrayInputStream byteIS = new ByteArrayInputStream(packet.getData());
+			ObjectInputStream objectIS = new ObjectInputStream(byteIS);
+			pack = (Packet)objectIS.readObject();
+		} catch (SocketException e) {
+			pack = null;
+		}
+		return pack;
+	}
+
+	private void handleControl(Packet pack) throws IOException {
+		Control c = (Control) pack;
+		Debugger.log("UDPListener : Received " + c.getType() + " from " + c.getPseudoSource());
+
+		if (c.getType() == Control.Control_t.HELLO) {
+			User remoteUser = controller.getUser(c.getPseudoSource(), c.getAddrSource());
+
+			Socket sock = new Socket(); //we create an empty socket and then bind it to port 0 (so a port is assigned dynamically)
+			sock.bind(new InetSocketAddress(controller.getLocalUser().getIP(), 0));
+			controller.sendControl(remoteUser, Control.Control_t.ACK, sock.getLocalPort()); //send ACK back with local port number (over UDP)
+			sock.connect(new InetSocketAddress(c.getAddrSource(), c.getData())); //connects to the remote ServerSocket
+
+			controller.addConversation(remoteUser, sock); //add conversation
+			Debugger.log("UDPListener : Conversation added");
+
+		} else if (c.getType() == Control.Control_t.ACK) {
+			controller.ACKPacketreceived(c);
+		} else {
+			System.out.println("ERROR in UDPListener.run(): received Control is neither HELLO nor ACK");
 		}
 	}
 }

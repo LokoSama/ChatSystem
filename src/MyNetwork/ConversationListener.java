@@ -7,17 +7,14 @@ import java.net.SocketException;
 
 import Controller.Controller;
 import Controller.Debugger;
-import Network.Packet.Control;
-import Network.Packet.File;
-import Network.Packet.Notification;
 import Network.Packet.Packet;
 import Network.Packet.Text;
 
 public class ConversationListener extends Thread {
 
 	//Attributes
+	private Conversation conv; //parent conversation
 	private ObjectInputStream input;
-	private Conversation conv;
 	private boolean isRunning;
 
 	public ConversationListener(ObjectInputStream input, Conversation conv) {
@@ -41,7 +38,7 @@ public class ConversationListener extends Thread {
 				}
 				if (pack != null)
 					handlePacket(pack);
-				Controller.Tempo(30);
+				Controller.shortWait();
 			} catch (ClassNotFoundException | IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -61,7 +58,7 @@ public class ConversationListener extends Thread {
 			System.out.println("Error in ConversationListener.handlePacket : packet type unclear");
 		}
 	}
-
+	
 	public void close() {
 		try {
 			input.close();
