@@ -5,6 +5,7 @@ import java.util.Observable;
 import java.util.Observer;
 
 import Controller.Controller;
+import Controller.Debugger;
 import Model.Model;
 import Model.Status;
 import Model.User;
@@ -28,7 +29,7 @@ public class View implements Observer {
 	}
 
 	public void initMain() { 
-		System.out.println("Envoi du paquet CONNECT en broadcast \n");
+		Debugger.log("Envoi du paquet CONNECT en broadcast \n");
 		this.controller.broadcastNotification(Notification_type.CONNECT, "lul"); 
 		this.fenetreMain = new FenetreMain(this);
 		this.fenetreMain.pack();

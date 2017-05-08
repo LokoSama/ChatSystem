@@ -55,7 +55,7 @@ public class ConversationListener extends Thread {
 			Debugger.log("ConversationListener.handlePacket : received File");
 			conv.addFile((Network.Packet.File)pack);
 		} else {
-			System.out.println("Error in ConversationListener.handlePacket : packet type unclear");
+			Debugger.log("Error in ConversationListener.handlePacket : packet type unclear");
 		}
 	}
 	

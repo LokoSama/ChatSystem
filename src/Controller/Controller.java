@@ -190,7 +190,7 @@ public class Controller {
 				Debugger.log("sendUDP : " + (genericPack instanceof Notification ? "Notification" : "Control") + " sent");
 			} catch (IOException e) {
 				e.printStackTrace();
-				System.out.println("ERROR in Controller.sendUDP : could not create/send datagram");
+				Debugger.log("ERROR in Controller.sendUDP : could not create/send datagram");
 			}
 		} else {
 			Debugger.log("ERROR in Controller.sendUDP : expected Control or Notification object as argument");

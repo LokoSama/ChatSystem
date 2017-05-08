@@ -32,7 +32,9 @@ public class FenetreLogin extends JFrame implements ActionListener {
 	public FenetreLogin (View view) { 
 		this.view = view ;
 		this.createComponents();
-		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);		
+		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		this.setTitle("ChatSystem");
+		this.setLocationRelativeTo(null); //centers the window
 	}
 
 	private void createComponents () {

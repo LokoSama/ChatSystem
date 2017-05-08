@@ -47,6 +47,7 @@ public class FenetreMain extends JFrame implements ActionListener,WindowListener
 		this.createComponents() ;
 		this.initUserList(view.getUserList()); //user list init
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		this.setLocationRelativeTo(null); //centers the window
 	}
 
 	@Override

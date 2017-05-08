@@ -39,6 +39,7 @@ public class FenetreMsg extends JFrame implements ActionListener, Runnable, Wind
 		this.pack();
 		this.setVisible(true);
 		addWindowListener(this);
+		this.setLocationRelativeTo(null); //centers the window
 	}
 
 	public void actionPerformed(ActionEvent e) {

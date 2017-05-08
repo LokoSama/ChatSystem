@@ -2,7 +2,7 @@ package Controller;
 
 public class Debugger {
 	
-	private static boolean enabled = true;
+	private static boolean enabled = false;
 	
 	public static void log(String debugMessage) {
 		if (Debugger.enabled)

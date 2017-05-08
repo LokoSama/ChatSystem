@@ -85,10 +85,10 @@ public class UDPListener extends Thread {
 						controller.deleteUser(n.getPseudoSource(),n.getAddrSource());
 					}
 					else {
-						System.out.println("ERROR in UDPListener.run(): received packet has no legitimate Notification type");
+						Debugger.log("ERROR in UDPListener.run(): received packet has no legitimate Notification type");
 					}
 				} else {
-					System.out.println("ERROR in UDPListener.run(): received packet is neither Control nor Notification");
+					Debugger.log("ERROR in UDPListener.run(): received packet is neither Control nor Notification");
 				}
 			}
 			catch (IOException | ClassNotFoundException e) {
@@ -128,7 +128,7 @@ public class UDPListener extends Thread {
 		} else if (c.getType() == Control.Control_t.ACK) {
 			controller.ACKPacketreceived(c);
 		} else {
-			System.out.println("ERROR in UDPListener.run(): received Control is neither HELLO nor ACK");
+			Debugger.log("ERROR in UDPListener.run(): received Control is neither HELLO nor ACK");
 		}
 	}
 }
