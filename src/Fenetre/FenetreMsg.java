@@ -33,7 +33,7 @@ public class FenetreMsg extends JFrame implements ActionListener, Runnable, Wind
 		this.remoteUser = remoteUser;
 		this.view = view;
 
-		this.setTitle(remoteUser.getUsername());
+		this.setTitle("Chat with " + remoteUser.getUsername());
 		this.createComponents();		
 		this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		this.pack();
