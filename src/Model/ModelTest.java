@@ -7,7 +7,6 @@ import java.net.UnknownHostException;
 
 import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class ModelTest {
@@ -23,20 +22,13 @@ public class ModelTest {
 		return new User("Patrick"+itera,InetAddress.getLocalHost(),Status.Online);
 	}
 
-	private void printList() {
-		for (int i=0;i<model.getUserList().size();i++){
-			System.out.println(model.getUserList().get(i));
-		}
-	}
 	@Before
 	public void setUp() throws Exception {
 		model = new Model();
 	}
 
 	@AfterClass
-	public static void tearDown() throws Exception {
-
-	}
+	public static void tearDown() throws Exception {}
 
 	@Test
 	public void testAjoutUser() throws UnknownHostException {
@@ -44,7 +36,7 @@ public class ModelTest {
 		User newUser = createUser();
 		model.addUser(newUser.getUsername(),newUser.getIP(),newUser.getStatus());
 		assertEquals("Taille liste",oldSize+1,model.getUserList().size());
-		assertEquals("Présence nouveau User",newUser,model.getUser(newUser.getUsername(), newUser.getIP()));
+		assertEquals("Prï¿½sence nouveau User",newUser,model.getUser(newUser.getUsername(), newUser.getIP()));
 	}
 
 	@Test
@@ -52,10 +44,10 @@ public class ModelTest {
 		User newUser = createUser();
 		model.addUser(newUser.getUsername(),newUser.getIP(),newUser.getStatus()); //Ajout User
 		int oldSize = model.getUserList().size();
-		assertEquals("Présence nouveau User",newUser,model.getUser(newUser.getUsername(), newUser.getIP()));
+		assertEquals("Prï¿½sence nouveau User",newUser,model.getUser(newUser.getUsername(), newUser.getIP()));
 		model.deleteUser(newUser.getUsername(),newUser.getIP()); //DeleteUser
 		assertEquals("Taille liste",oldSize-1,model.getUserList().size());
-		assertEquals("Absence User supprimé",null,model.getUser(newUser.getUsername(), newUser.getIP()));
+		assertEquals("Absence User supprimï¿½",null,model.getUser(newUser.getUsername(), newUser.getIP()));
 	}
 
 	@Test
@@ -80,7 +72,7 @@ public class ModelTest {
 		assertEquals("Taille liste",oldSize+1000,model.getUserList().size());
 		for (iter = 0; iter<1000;iter++) { //On ajoute Patrick[i] 1000 fois
 			newUser = createUseri(iter);
-			assertEquals("Présence nouveau User",newUser,model.getUser(newUser.getUsername(), newUser.getIP()));
+			assertEquals("PrÃ©sence nouveau User", newUser, model.getUser(newUser.getUsername(), newUser.getIP()));
 		}
 		for (iter = 0; iter<1000;iter=iter+2) { //On supprime les Patrick pairs (soit 500)
 			newUser = createUseri(iter);
@@ -93,7 +85,7 @@ public class ModelTest {
 		}
 		for (iter = 1; iter<1000;iter=iter+2) { //On supprime les Patrick pairs (soit 500)
 			newUser = createUseri(iter);
-			assertEquals("Présence User pairs",newUser,model.getUser(newUser.getUsername(), newUser.getIP()));
+			assertEquals("PrÃ©sence User pairs",newUser,model.getUser(newUser.getUsername(), newUser.getIP()));
 		}
 
 	}
