@@ -33,7 +33,7 @@ public class User {
 				return false;
 		} else if (!IP.equals(other.IP))
 			return false;
-		if (status != other.status)
+		if (!username.equals(other.username))
 			return false;
 		return true;
 	}
