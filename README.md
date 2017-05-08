@@ -57,7 +57,7 @@ On peut retrouver ces tests dans notre classe ModelTest.java
 - Principe : on ajoute un utilisateur (testé comme au dessus), on modifie son statut et on vérifie son nouveau statut
 - Résultat : succès en 0.000s
 
-## testBenchMark
+## testBenchmark
 
 - Auteurs : notre binôme
 - Principe : on ajoute 1000 utlisateurs appelés "Patrick"+n , puis on supprime les utilisateurs "Patrick"+n pairs. A chaque changement, on teste la taille de la liste et la présence des différents utilisateurs.
