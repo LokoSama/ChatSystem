@@ -24,7 +24,7 @@ java Main.Chat
 - Mise à jour en temps réel des utilisateurs et de leurs statuts
 - Création, fermeture de conversation
 - Envoi, réception de messages textuels
-- Envoi, réception de fichiers
+- Envoi, réception de fichiers (pour l'envoi, spécifier le chemin absolu du fichier à envoyer ; les fichiers reçus se trouvent à la racine du dossier ChatSystem)
 
 ## Fonctionnalités non implémentées
 
