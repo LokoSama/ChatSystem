@@ -1,1 +1,4 @@
 bin/
+src/*/*.class
+src/*/*/*.class
+.Rhistory
