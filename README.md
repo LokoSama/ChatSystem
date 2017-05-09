@@ -11,8 +11,11 @@ Jérémy BASSO (LokoSama) et Sandor BUGEL (JohnAnthony795)
 Version Java utilisée : 1.7
 
 Ce projet a été codé et compilé sous l'IDE Eclipse.
+
 Alternativement, pour compiler il faut se placer dans le dossier src et exécuter les commandes suivantes :
+
 javac Main/Chat.java
+
 java Main.Chat
 
 ## Fonctionnalités implémentées
