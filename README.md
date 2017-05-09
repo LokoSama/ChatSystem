@@ -62,4 +62,4 @@ On peut retrouver ces tests dans notre classe ModelTest.java
 
 - Auteurs : notre binôme
 - Principe : on ajoute 1000 utlisateurs appelés "Patrick"+n , puis on supprime les utilisateurs "Patrick"+n pairs. A chaque changement, on teste la taille de la liste et la présence des différents utilisateurs.
-- Résultat : succès en 0.128s
+- Résultat : succès en 0.128s sous Windows 7, succès en 0.047s sous Ubuntu 14.04 (machines INSA)

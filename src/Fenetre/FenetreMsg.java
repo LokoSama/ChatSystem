@@ -111,6 +111,7 @@ public class FenetreMsg extends JFrame implements ActionListener, Runnable, Wind
 	//WindowListener functions to override : we only care about windowClosing
 	@Override
 	public void windowClosing(WindowEvent e) {
+		this.view.sendText(remoteUser, "*** DISCONNECTED ***");
 		this.view.closeFenetreMsg(remoteUser);
 	}
 	

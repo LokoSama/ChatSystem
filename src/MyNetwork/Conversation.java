@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.ArrayList;
 
 import Controller.Controller;
@@ -24,7 +25,7 @@ public class Conversation {
 
 	private final String workDir = System.getProperty("user.dir") + File.separator;
 
-	
+
 	public Conversation (Socket sock) {
 		Debugger.log("Conversation : constructing");
 		this.sock = sock;
@@ -68,13 +69,13 @@ public class Conversation {
 
 			convDir = workDir + "from" + incFile.getPseudoSource() + File.separator; //received files are written to where the program is executed
 			File f = new File(convDir + incFile.getFileName());
-			
+
 			long i = 0;
 			while (f.exists() || f.isDirectory()) {
 				i++;
 				f = new File(convDir + "(" + i + ")" + incFile.getFileName());
 			}
-			
+
 			Debugger.log("Final filepath: " + f.getAbsolutePath());
 			//creates the necessary directories if needed
 			(new File(convDir)).mkdirs();
@@ -98,7 +99,8 @@ public class Conversation {
 	public void send(Packet pack) {
 		try {
 			output.writeObject(pack);
-		} catch (IOException e) {
+		} catch (SocketException e) {}
+		catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
@@ -109,11 +111,12 @@ public class Conversation {
 			listener.close();
 			output.close();
 			sock.close();
-		} catch (IOException e) {
+		} catch (SocketException e) {}
+		catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
-	
+
 	//this function returns a string containing the given size (in bytes) in a human readable format
 	private String printSize(double byteSize) {
 		String unit = "B";

@@ -41,12 +41,15 @@ public class Model extends Observable {
 	public boolean addUser(String name, InetAddress ip, Status status) {
 
 		User u = new User(name, ip, status);
-		boolean ret = false;
-		if (!userList.contains(u))
-			ret = userList.add(u);
-		setChanged();
-		notifyObservers();
-		return ret;
+		if (! this.localUser.equals(u)) {
+			boolean ret = false;
+			if (!userList.contains(u))
+				ret = userList.add(u);
+			setChanged();
+			notifyObservers();
+			return ret;
+		} else
+			return false;
 	}
 
 	public boolean deleteUser(String name, InetAddress ip) {
@@ -101,7 +104,7 @@ public class Model extends Observable {
 		}
 		else return null; //if no User was found
 	}
-	
+
 	public boolean userIsConnected() {
 		return connected;
 	}
@@ -116,7 +119,7 @@ public class Model extends Observable {
 		setChanged();
 		notifyObservers();
 	}
-	
+
 	public void setStatus(String name,InetAddress ip, Status status){
 		int index = 0;
 		boolean find = false;
